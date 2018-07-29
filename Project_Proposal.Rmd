@@ -1,0 +1,186 @@
+---
+title: "STAT 420: Data Analysis Project Proposal" 
+author: "Anupama Agrahari, Dhanendra Singh, Naveen Kumar Palani, Shanthakumar Subramanian"
+date: ''
+output:
+  html_document: 
+    toc: yes
+  pdf_document: default
+urlcolor: cyan
+---
+
+
+
+
+## Team
+
+We are team of four. Please find below our names and Net ID in alphabetical order.
+
+```{r echo = FALSE, result = 'asis'}
+members = matrix(nrow = 4, ncol = 3)
+colnames(members) = c("FirstName", "LastName", "NetID")
+rownames(members) = c("1", "2", "3","4")
+
+members[1,1] = "Anupama"
+members[1,2] = "Agrahari"
+members[1,3] = "anupama3"
+members[2,1] = "Dhanendra"
+members[2,2] = "Singh"
+members[2,3] = "disingh2"
+members[3,1] = "Naveen Kumar"
+members[3,2] = "Palani"
+members[3,3] = "npalani3"
+members[4,1] = "Shanthakumar"
+members[4,2] = "Subramanian"
+members[4,3] = "SS81"
+knitr::kable(members)
+```
+
+## Proposal
+
+### About the Project
+This data analysis project is inspired from the House Prices: Advanced Regression Techniques competition held in Kaggle.
+
+In this project we will be try to predict the final price of each home, based on the 79 explanatory variables describing (almost) every aspect of residential homes in Ames, Iowa.
+
+### Tentative Title
+
+**What is the price of your dream house?**
+
+## Data Set
+
+### Source
+
+We are using house prie data available at  https://www.kaggle.com/c/house-prices-advanced-regression-techniques . We will use regression techniques to analyze the data. Below are the details about our dataset.
+
+### Background
+
+The Ames Housing dataset was compiled by Dean De Cock for use in data science education. It's an incredible alternative for data scientists looking for a modernized and expanded version of the often cited Boston Housing dataset. 
+
+
+### File descriptions
+
+We have attached the below files for your reference
+
+- train.csv - the training set
+- test.csv - the test set
+- data_description.txt - full description of each column, originally prepared by Dean De Cock but lightly edited to match the column names used here
+
+### Data fields
+
+Here's a brief description of different fields of the house data set.
+
+- SalePrice - the property's sale price in dollars. This is the target variable that we are trying to predict.
+- MSSubClass: The building class
+- MSZoning: The general zoning classification
+- LotFrontage: Linear feet of street connected to property
+- LotArea: Lot size in square feet
+- Street: Type of road access
+- Alley: Type of alley access
+- LotShape: General shape of property
+- LandContour: Flatness of the property
+- Utilities: Type of utilities available
+- LotConfig: Lot configuration
+- LandSlope: Slope of property
+- Neighborhood: Physical locations within Ames city limits
+- Condition1: Proximity to main road or railroad
+- Condition2: Proximity to main road or railroad (if a second is present)
+- BldgType: Type of dwelling
+- HouseStyle: Style of dwelling
+- OverallQual: Overall material and finish quality
+- OverallCond: Overall condition rating
+- YearBuilt: Original construction date
+- YearRemodAdd: Remodel date
+- RoofStyle: Type of roof
+- RoofMatl: Roof material
+- Exterior1st: Exterior covering on house
+- Exterior2nd: Exterior covering on house (if more than one material)
+- MasVnrType: Masonry veneer type
+- MasVnrArea: Masonry veneer area in square feet
+- ExterQual: Exterior material quality
+- ExterCond: Present condition of the material on the exterior
+- Foundation: Type of foundation
+- BsmtQual: Height of the basement
+- BsmtCond: General condition of the basement
+- BsmtExposure: Walkout or garden level basement walls
+- BsmtFinType1: Quality of basement finished area
+- BsmtFinSF1: Type 1 finished square feet
+- BsmtFinType2: Quality of second finished area (if present)
+- BsmtFinSF2: Type 2 finished square feet
+- BsmtUnfSF: Unfinished square feet of basement area
+- TotalBsmtSF: Total square feet of basement area
+- Heating: Type of heating
+- HeatingQC: Heating quality and condition
+- CentralAir: Central air conditioning
+- Electrical: Electrical system
+- 1stFlrSF: First Floor square feet
+- 2ndFlrSF: Second floor square feet
+- LowQualFinSF: Low quality finished square feet (all floors)
+- GrLivArea: Above grade (ground) living area square feet
+- BsmtFullBath: Basement full bathrooms
+- BsmtHalfBath: Basement half bathrooms
+- FullBath: Full bathrooms above grade
+- HalfBath: Half baths above grade
+- Bedroom: Number of bedrooms above basement level
+- Kitchen: Number of kitchens
+- KitchenQual: Kitchen quality
+- TotRmsAbvGrd: Total rooms above grade (does not include bathrooms)
+- Functional: Home functionality rating
+- Fireplaces: Number of fireplaces
+- FireplaceQu: Fireplace quality
+- GarageType: Garage location
+- GarageYrBlt: Year garage was built
+- GarageFinish: Interior finish of the garage
+- GarageCars: Size of garage in car capacity
+- GarageArea: Size of garage in square feet
+- GarageQual: Garage quality
+- GarageCond: Garage condition
+- PavedDrive: Paved driveway
+- WoodDeckSF: Wood deck area in square feet
+- OpenPorchSF: Open porch area in square feet
+- EnclosedPorch: Enclosed porch area in square feet
+- 3SsnPorch: Three season porch area in square feet
+- ScreenPorch: Screen porch area in square feet
+- PoolArea: Pool area in square feet
+- PoolQC: Pool quality
+- Fence: Fence quality
+- MiscFeature: Miscellaneous feature not covered in other categories
+- MiscVal: $Value of miscellaneous feature
+- MoSold: Month Sold
+- YrSold: Year Sold
+- SaleType: Type of sale
+- SaleCondition: Condition of sale
+
+### Data Snippet
+
+Here is a snippet of our train data set, with first few columns. As part of this project, we will be identifying the predictors which has the effect on response variable in predicting the housing prices.
+
+```{r,echo=FALSE}
+
+house = read.csv("train.csv")
+
+knitr::kable(head(house)[,1:15])
+
+```
+
+##Statement of interest
+
+- We like to implement the various skills that we learnt throughout the course with a real life data which would actually give us a real time application experience which will satisfy our research interest. 
+- Down the line, we have a plan to buy our dream home in US and this would help us predicting the house prices and we can plan our budgeting, which will satisfy our personal interest. 
+
+
+## Acknowledgements
+
+- http://daviddalpiaz.github.io/appliedstats/
+- https://www.kaggle.com/c/house-prices-advanced-regression-techniques
+- https://ww2.amstat.org/publications/jse/v19n3/decock.pdf
+
+
+
+
+
+
+
+
+
+
