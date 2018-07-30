@@ -177,8 +177,13 @@ From the dimension of test and train data, we could see that the test data has o
 - step 5 : Finalize the model
 - Step 6 : Chek for train and test RMSE
 - step 7 : check for leverage and influential observation
-- step 8 : Again check the RMSE after removing the influential observations
+- step 8 : Build the model after removing the influential observations(if any) and 
+           check the RMSE values
 - step 9 : predict the results with the final model
+
+**Note** 
+  
+  - Everytime we fit the model, we need to check the normal distribution and constant variance assumption
 
 Points to consider 
 
