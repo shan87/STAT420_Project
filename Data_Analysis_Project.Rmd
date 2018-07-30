@@ -262,8 +262,25 @@ Lets now have a look at the train data set
 
 ```{r}
 
-summary(train)
+str(train)
 
+
+```
+
+Now the data looks fine. Lets try to build a additive model with all variable as initial model to do a BIC search on it to find a smaller models with appropriate predictiors.
+
+```{r}
+
+initial_model = lm(SalePrice~.,data=train)
+
+BIC_selected = step(initial_model,k=log(nrow(train)),trace=0)
+
+
+```
+
+```{r}
+
+summary(BIC_selected)
 
 ```
 
