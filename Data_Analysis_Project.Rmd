@@ -177,7 +177,7 @@ From the above str display of data we could see that our data is not completely 
 
 We also see that some of the factor variables have different levels in train and test data set, which might cause problem in predicting the model.We can make sure the train and test sets have the same factor levels by loading each data set again without converting strings to factors, combining them into one large data set, converting strings to factors for the combined data set and then separating them. 
 
-We also can change any NA in the dataset to missing while changing the factor of character columns
+We also can change any NA in the dataset to None while changing the factor of character columns
 
 ```{r}
 
@@ -193,15 +193,62 @@ train$SalePrice = NULL
 
 house_data = rbind(train,test)
 
-# Convert character columns to factor, filling NA values with "missing"
+# Convert character columns to factor, filling NA values with "None"
 
 for (col in colnames(house_data)){
   if (typeof(house_data[,col]) == "character"){
     new_col = house_data[,col]
-    new_col[is.na(new_col)] = "missing"
+    new_col[is.na(new_col)] = "None"
     house_data[col] = as.factor(new_col)
   }
 }
+
+```
+
+Now the factor variable should be common across test and train dataset ,lets try to find the missing values in integer variable and fix it
+
+```{r}
+
+## Taking all the missing data indices in one variables
+
+Missing_indices = sapply(house_data,function(x) sum(is.na(x)))
+Missing_Summary = data.frame(index = names(house_data),Missing_Values=Missing_indices)
+Missing_Summary[Missing_Summary$Missing_Values > 0,]
+
+```
+
+Above are the list of variable having NA values, in the below section, we will fix those values with relavant values
+
+```{r}
+
+house_data$MasVnrArea[which(is.na(house_data$MasVnrArea))] = mean(house_data$MasVnrArea,na.rm=T)
+
+house_data$LotFrontage[which(is.na(house_data$LotFrontage))] = median(house_data$LotFrontage,na.rm = T)
+
+house_data$GarageYrBlt[which(is.na(house_data$GarageYrBlt))] = 0 
+
+house_data$GarageArea[which(is.na(house_data$GarageArea))] = mean(house_data$GarageArea,na.rm=T)
+
+house_data$TotalBsmtSF[which(is.na(house_data$TotalBsmtSF))] = mean(house_data$TotalBsmtSF,na.rm=T)
+
+house_data$BsmtUnfSF[which(is.na(house_data$BsmtUnfSF))] = mean(house_data$BsmtUnfSF,na.rm=T)
+
+house_data$BsmtFinSF1[which(is.na(house_data$BsmtFinSF1))] = mean(house_data$BsmtFinSF1,na.rm=T)
+
+house_data$BsmtFinSF2[which(is.na(house_data$BsmtFinSF2))] = mean(house_data$BsmtFinSF2,na.rm=T)
+
+house_data$GarageCars[which(is.na(house_data$GarageCars))] = mode(house_data$GarageCars)
+
+house_data$BsmtHalfBath[which(is.na(house_data$BsmtHalfBath ))] = mode(house_data$BsmtHalfBath)
+
+house_data$BsmtFullBath[which(is.na(house_data$BsmtFullBath ))] = mode(house_data$BsmtFullBath)
+
+```
+
+
+separate the train and test data after fixing the NA values
+
+```{r}
 
 # Separate out our train and test sets
 
@@ -211,17 +258,14 @@ test = house_data[(nrow(train)+1):nrow(house_data),]
 
 ```
 
-Now lets explore the data again bu seeing the summary of train data
+Lets now have a look at the train data set
 
 ```{r}
 
 summary(train)
 
+
 ```
-
-
-
-<<<< Have to complete this section, below are the sections we can plan for working>>>>
 
 ## Model Building
 - step 0 : Data exploration, cleansing and check for multicollineariaty

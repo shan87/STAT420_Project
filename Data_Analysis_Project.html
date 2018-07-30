@@ -472,7 +472,7 @@ dim(train)</code></pre>
 ##  $ SaleCondition: Factor w/ 6 levels &quot;Abnorml&quot;,&quot;AdjLand&quot;,..: 5 5 5 5 5 5 5 5 5 5 ...</code></pre>
 <p>From the above str display of data we could see that our data is not completely clean. First, certain variables contain NA values which could cause problems when we make predictive models later on. Second, the levels of some of the factor variables are not the same across the training set and test set.</p>
 <p>We also see that some of the factor variables have different levels in train and test data set, which might cause problem in predicting the model.We can make sure the train and test sets have the same factor levels by loading each data set again without converting strings to factors, combining them into one large data set, converting strings to factors for the combined data set and then separating them.</p>
-<p>We also can change any NA in the dataset to missing while changing the factor of character columns</p>
+<p>We also can change any NA in the dataset to None while changing the factor of character columns</p>
 <pre class="r"><code>train = read.csv(&quot;train.csv&quot;, stringsAsFactors = FALSE) 
 test = read.csv(&quot;test.csv&quot;, stringsAsFactors = FALSE) 
 
@@ -485,47 +485,87 @@ train$SalePrice = NULL
 
 house_data = rbind(train,test)
 
-# Convert character columns to factor, filling NA values with &quot;missing&quot;
+# Convert character columns to factor, filling NA values with &quot;None&quot;
 
 for (col in colnames(house_data)){
   if (typeof(house_data[,col]) == &quot;character&quot;){
     new_col = house_data[,col]
-    new_col[is.na(new_col)] = &quot;missing&quot;
+    new_col[is.na(new_col)] = &quot;None&quot;
     house_data[col] = as.factor(new_col)
   }
-}
+}</code></pre>
+<p>Now the factor variable should be common across test and train dataset ,lets try to find the missing values in integer variable and fix it</p>
+<pre class="r"><code>## Taking all the missing data indices in one variables
 
-# Separate out our train and test sets
+Missing_indices = sapply(house_data,function(x) sum(is.na(x)))
+Missing_Summary = data.frame(index = names(house_data),Missing_Values=Missing_indices)
+Missing_Summary[Missing_Summary$Missing_Values &gt; 0,]</code></pre>
+<pre><code>##                     index Missing_Values
+## LotFrontage   LotFrontage            486
+## MasVnrArea     MasVnrArea             23
+## BsmtFinSF1     BsmtFinSF1              1
+## BsmtFinSF2     BsmtFinSF2              1
+## BsmtUnfSF       BsmtUnfSF              1
+## TotalBsmtSF   TotalBsmtSF              1
+## BsmtFullBath BsmtFullBath              2
+## BsmtHalfBath BsmtHalfBath              2
+## GarageYrBlt   GarageYrBlt            159
+## GarageCars     GarageCars              1
+## GarageArea     GarageArea              1</code></pre>
+<p>Above are the list of variable having NA values, in the below section, we will fix those values with relavant values</p>
+<pre class="r"><code>house_data$MasVnrArea[which(is.na(house_data$MasVnrArea))] = mean(house_data$MasVnrArea,na.rm=T)
+
+house_data$LotFrontage[which(is.na(house_data$LotFrontage))] = median(house_data$LotFrontage,na.rm = T)
+
+house_data$GarageYrBlt[which(is.na(house_data$GarageYrBlt))] = 0 
+
+house_data$GarageArea[which(is.na(house_data$GarageArea))] = mean(house_data$GarageArea,na.rm=T)
+
+house_data$TotalBsmtSF[which(is.na(house_data$TotalBsmtSF))] = mean(house_data$TotalBsmtSF,na.rm=T)
+
+house_data$BsmtUnfSF[which(is.na(house_data$BsmtUnfSF))] = mean(house_data$BsmtUnfSF,na.rm=T)
+
+house_data$BsmtFinSF1[which(is.na(house_data$BsmtFinSF1))] = mean(house_data$BsmtFinSF1,na.rm=T)
+
+house_data$BsmtFinSF2[which(is.na(house_data$BsmtFinSF2))] = mean(house_data$BsmtFinSF2,na.rm=T)
+
+house_data$GarageCars[which(is.na(house_data$GarageCars))] = mode(house_data$GarageCars)
+
+house_data$BsmtHalfBath[which(is.na(house_data$BsmtHalfBath ))] = mode(house_data$BsmtHalfBath)
+
+house_data$BsmtFullBath[which(is.na(house_data$BsmtFullBath ))] = mode(house_data$BsmtFullBath)</code></pre>
+<p>separate the train and test data after fixing the NA values</p>
+<pre class="r"><code># Separate out our train and test sets
 
 train = house_data[1:nrow(train),]
 train$SalePrice = SalePrice  
 test = house_data[(nrow(train)+1):nrow(house_data),]</code></pre>
-<p>Now lets explore the data again bu seeing the summary of train data</p>
+<p>Lets now have a look at the train data set</p>
 <pre class="r"><code>summary(train)</code></pre>
 <pre><code>##        Id           MSSubClass       MSZoning     LotFrontage    
 ##  Min.   :   1.0   Min.   : 20.0   C (all):  10   Min.   : 21.00  
-##  1st Qu.: 365.8   1st Qu.: 20.0   FV     :  65   1st Qu.: 59.00  
-##  Median : 730.5   Median : 50.0   missing:   0   Median : 69.00  
-##  Mean   : 730.5   Mean   : 56.9   RH     :  16   Mean   : 70.05  
-##  3rd Qu.:1095.2   3rd Qu.: 70.0   RL     :1151   3rd Qu.: 80.00  
+##  1st Qu.: 365.8   1st Qu.: 20.0   FV     :  65   1st Qu.: 60.00  
+##  Median : 730.5   Median : 50.0   None   :   0   Median : 68.00  
+##  Mean   : 730.5   Mean   : 56.9   RH     :  16   Mean   : 69.69  
+##  3rd Qu.:1095.2   3rd Qu.: 70.0   RL     :1151   3rd Qu.: 79.00  
 ##  Max.   :1460.0   Max.   :190.0   RM     : 218   Max.   :313.00  
-##                                                  NA's   :259     
-##     LotArea        Street         Alley      LotShape  LandContour
-##  Min.   :  1300   Grvl:   6   Grvl   :  50   IR1:484   Bnk:  63   
-##  1st Qu.:  7554   Pave:1454   missing:1369   IR2: 41   HLS:  50   
-##  Median :  9478               Pave   :  41   IR3: 10   Low:  36   
-##  Mean   : 10517                              Reg:925   Lvl:1311   
-##  3rd Qu.: 11602                                                   
-##  Max.   :215245                                                   
-##                                                                   
-##    Utilities      LotConfig    LandSlope   Neighborhood   Condition1  
-##  AllPub :1459   Corner : 263   Gtl:1382   NAmes  :225   Norm   :1260  
-##  missing:   0   CulDSac:  94   Mod:  65   CollgCr:150   Feedr  :  81  
-##  NoSeWa :   1   FR2    :  47   Sev:  13   OldTown:113   Artery :  48  
-##                 FR3    :   4              Edwards:100   RRAn   :  26  
-##                 Inside :1052              Somerst: 86   PosN   :  19  
-##                                           Gilbert: 79   RRAe   :  11  
-##                                           (Other):707   (Other):  15  
+##                                                                  
+##     LotArea        Street      Alley      LotShape  LandContour
+##  Min.   :  1300   Grvl:   6   Grvl:  50   IR1:484   Bnk:  63   
+##  1st Qu.:  7554   Pave:1454   None:1369   IR2: 41   HLS:  50   
+##  Median :  9478               Pave:  41   IR3: 10   Low:  36   
+##  Mean   : 10517                           Reg:925   Lvl:1311   
+##  3rd Qu.: 11602                                                
+##  Max.   :215245                                                
+##                                                                
+##   Utilities      LotConfig    LandSlope   Neighborhood   Condition1  
+##  AllPub:1459   Corner : 263   Gtl:1382   NAmes  :225   Norm   :1260  
+##  None  :   0   CulDSac:  94   Mod:  65   CollgCr:150   Feedr  :  81  
+##  NoSeWa:   1   FR2    :  47   Sev:  13   OldTown:113   Artery :  48  
+##                FR3    :   4              Edwards:100   RRAn   :  26  
+##                Inside :1052              Somerst: 86   PosN   :  19  
+##                                          Gilbert: 79   RRAe   :  11  
+##                                          (Other):707   (Other):  15  
 ##    Condition2     BldgType      HouseStyle   OverallQual    
 ##  Norm   :1445   1Fam  :1220   1Story :726   Min.   : 1.000  
 ##  Feedr  :   6   2fmCon:  31   2Story :445   1st Qu.: 5.000  
@@ -545,116 +585,107 @@ test = house_data[(nrow(train)+1):nrow(house_data),]</code></pre>
 ##     RoofMatl     Exterior1st   Exterior2nd    MasVnrType    MasVnrArea    
 ##  CompShg:1434   VinylSd:515   VinylSd:504   BrkCmn : 15   Min.   :   0.0  
 ##  Tar&amp;Grv:  11   HdBoard:222   MetalSd:214   BrkFace:445   1st Qu.:   0.0  
-##  WdShngl:   6   MetalSd:220   HdBoard:207   missing:  8   Median :   0.0  
-##  WdShake:   5   Wd Sdng:206   Wd Sdng:197   None   :864   Mean   : 103.7  
-##  ClyTile:   1   Plywood:108   Plywood:142   Stone  :128   3rd Qu.: 166.0  
+##  WdShngl:   6   MetalSd:220   HdBoard:207   None   :872   Median :   0.0  
+##  WdShake:   5   Wd Sdng:206   Wd Sdng:197   Stone  :128   Mean   : 103.7  
+##  ClyTile:   1   Plywood:108   Plywood:142                 3rd Qu.: 164.2  
 ##  Membran:   1   CemntBd: 61   CmentBd: 60                 Max.   :1600.0  
-##  (Other):   2   (Other):128   (Other):136                 NA's   :8       
-##  ExterQual ExterCond  Foundation     BsmtQual      BsmtCond   
-##  Ex: 52    Ex:   3   BrkTil:146   Ex     :121   Fa     :  45  
-##  Fa: 14    Fa:  28   CBlock:634   Fa     : 35   Gd     :  65  
-##  Gd:488    Gd: 146   PConc :647   Gd     :618   missing:  37  
-##  TA:906    Po:   1   Slab  : 24   missing: 37   Po     :   2  
-##            TA:1282   Stone :  6   TA     :649   TA     :1311  
-##                      Wood  :  3                               
-##                                                               
-##   BsmtExposure  BsmtFinType1   BsmtFinSF1      BsmtFinType2 
-##  Av     :221   ALQ    :220   Min.   :   0.0   ALQ    :  19  
-##  Gd     :134   BLQ    :148   1st Qu.:   0.0   BLQ    :  33  
-##  missing: 38   GLQ    :418   Median : 383.5   GLQ    :  14  
-##  Mn     :114   LwQ    : 74   Mean   : 443.6   LwQ    :  46  
-##  No     :953   missing: 37   3rd Qu.: 712.2   missing:  38  
-##                Rec    :133   Max.   :5644.0   Rec    :  54  
-##                Unf    :430                    Unf    :1256  
-##    BsmtFinSF2        BsmtUnfSF       TotalBsmtSF      Heating    
-##  Min.   :   0.00   Min.   :   0.0   Min.   :   0.0   Floor:   1  
-##  1st Qu.:   0.00   1st Qu.: 223.0   1st Qu.: 795.8   GasA :1428  
-##  Median :   0.00   Median : 477.5   Median : 991.5   GasW :  18  
-##  Mean   :  46.55   Mean   : 567.2   Mean   :1057.4   Grav :   7  
-##  3rd Qu.:   0.00   3rd Qu.: 808.0   3rd Qu.:1298.2   OthW :   2  
-##  Max.   :1474.00   Max.   :2336.0   Max.   :6110.0   Wall :   4  
-##                                                                  
-##  HeatingQC CentralAir   Electrical     X1stFlrSF      X2ndFlrSF   
-##  Ex:741    N:  95     FuseA  :  94   Min.   : 334   Min.   :   0  
-##  Fa: 49    Y:1365     FuseF  :  27   1st Qu.: 882   1st Qu.:   0  
-##  Gd:241               FuseP  :   3   Median :1087   Median :   0  
-##  Po:  1               missing:   1   Mean   :1163   Mean   : 347  
-##  TA:428               Mix    :   1   3rd Qu.:1391   3rd Qu.: 728  
-##                       SBrkr  :1334   Max.   :4692   Max.   :2065  
-##                                                                   
-##   LowQualFinSF       GrLivArea     BsmtFullBath     BsmtHalfBath    
-##  Min.   :  0.000   Min.   : 334   Min.   :0.0000   Min.   :0.00000  
-##  1st Qu.:  0.000   1st Qu.:1130   1st Qu.:0.0000   1st Qu.:0.00000  
-##  Median :  0.000   Median :1464   Median :0.0000   Median :0.00000  
-##  Mean   :  5.845   Mean   :1515   Mean   :0.4253   Mean   :0.05753  
-##  3rd Qu.:  0.000   3rd Qu.:1777   3rd Qu.:1.0000   3rd Qu.:0.00000  
-##  Max.   :572.000   Max.   :5642   Max.   :3.0000   Max.   :2.00000  
+##  (Other):   2   (Other):128   (Other):136                                 
+##  ExterQual ExterCond  Foundation  BsmtQual   BsmtCond    BsmtExposure
+##  Ex: 52    Ex:   3   BrkTil:146   Ex  :121   Fa  :  45   Av  :221    
+##  Fa: 14    Fa:  28   CBlock:634   Fa  : 35   Gd  :  65   Gd  :134    
+##  Gd:488    Gd: 146   PConc :647   Gd  :618   None:  37   Mn  :114    
+##  TA:906    Po:   1   Slab  : 24   None: 37   Po  :   2   No  :953    
+##            TA:1282   Stone :  6   TA  :649   TA  :1311   None: 38    
+##                      Wood  :  3                                      
+##                                                                      
+##  BsmtFinType1   BsmtFinSF1     BsmtFinType2   BsmtFinSF2     
+##  ALQ :220     Min.   :   0.0   ALQ :  19    Min.   :   0.00  
+##  BLQ :148     1st Qu.:   0.0   BLQ :  33    1st Qu.:   0.00  
+##  GLQ :418     Median : 383.5   GLQ :  14    Median :   0.00  
+##  LwQ : 74     Mean   : 443.6   LwQ :  46    Mean   :  46.55  
+##  None: 37     3rd Qu.: 712.2   None:  38    3rd Qu.:   0.00  
+##  Rec :133     Max.   :5644.0   Rec :  54    Max.   :1474.00  
+##  Unf :430                      Unf :1256                     
+##    BsmtUnfSF       TotalBsmtSF      Heating     HeatingQC CentralAir
+##  Min.   :   0.0   Min.   :   0.0   Floor:   1   Ex:741    N:  95    
+##  1st Qu.: 223.0   1st Qu.: 795.8   GasA :1428   Fa: 49    Y:1365    
+##  Median : 477.5   Median : 991.5   GasW :  18   Gd:241              
+##  Mean   : 567.2   Mean   :1057.4   Grav :   7   Po:  1              
+##  3rd Qu.: 808.0   3rd Qu.:1298.2   OthW :   2   TA:428              
+##  Max.   :2336.0   Max.   :6110.0   Wall :   4                       
 ##                                                                     
-##     FullBath        HalfBath       BedroomAbvGr    KitchenAbvGr  
-##  Min.   :0.000   Min.   :0.0000   Min.   :0.000   Min.   :0.000  
-##  1st Qu.:1.000   1st Qu.:0.0000   1st Qu.:2.000   1st Qu.:1.000  
-##  Median :2.000   Median :0.0000   Median :3.000   Median :1.000  
-##  Mean   :1.565   Mean   :0.3829   Mean   :2.866   Mean   :1.047  
-##  3rd Qu.:2.000   3rd Qu.:1.0000   3rd Qu.:3.000   3rd Qu.:1.000  
-##  Max.   :3.000   Max.   :2.0000   Max.   :8.000   Max.   :3.000  
-##                                                                  
-##   KitchenQual   TotRmsAbvGrd      Functional     Fireplaces   
-##  Ex     :100   Min.   : 2.000   Typ    :1360   Min.   :0.000  
-##  Fa     : 39   1st Qu.: 5.000   Min2   :  34   1st Qu.:0.000  
-##  Gd     :586   Median : 6.000   Min1   :  31   Median :1.000  
-##  missing:  0   Mean   : 6.518   Mod    :  15   Mean   :0.613  
-##  TA     :735   3rd Qu.: 7.000   Maj1   :  14   3rd Qu.:1.000  
-##                Max.   :14.000   Maj2   :   5   Max.   :3.000  
-##                                 (Other):   1                  
-##   FireplaceQu    GarageType   GarageYrBlt    GarageFinish   GarageCars   
-##  Ex     : 24   2Types :  6   Min.   :1900   Fin    :352   Min.   :0.000  
-##  Fa     : 33   Attchd :870   1st Qu.:1961   missing: 81   1st Qu.:1.000  
-##  Gd     :380   Basment: 19   Median :1980   RFn    :422   Median :2.000  
-##  missing:690   BuiltIn: 88   Mean   :1979   Unf    :605   Mean   :1.767  
-##  Po     : 20   CarPort:  9   3rd Qu.:2002                 3rd Qu.:2.000  
-##  TA     :313   Detchd :387   Max.   :2010                 Max.   :4.000  
-##                missing: 81   NA's   :81                                  
-##    GarageArea       GarageQual     GarageCond   PavedDrive
-##  Min.   :   0.0   Ex     :   3   Ex     :   2   N:  90    
-##  1st Qu.: 334.5   Fa     :  48   Fa     :  35   P:  30    
-##  Median : 480.0   Gd     :  14   Gd     :   9   Y:1340    
-##  Mean   : 473.0   missing:  81   missing:  81             
-##  3rd Qu.: 576.0   Po     :   3   Po     :   7             
-##  Max.   :1418.0   TA     :1311   TA     :1326             
-##                                                           
-##    WoodDeckSF      OpenPorchSF     EnclosedPorch      X3SsnPorch    
-##  Min.   :  0.00   Min.   :  0.00   Min.   :  0.00   Min.   :  0.00  
-##  1st Qu.:  0.00   1st Qu.:  0.00   1st Qu.:  0.00   1st Qu.:  0.00  
-##  Median :  0.00   Median : 25.00   Median :  0.00   Median :  0.00  
-##  Mean   : 94.24   Mean   : 46.66   Mean   : 21.95   Mean   :  3.41  
-##  3rd Qu.:168.00   3rd Qu.: 68.00   3rd Qu.:  0.00   3rd Qu.:  0.00  
-##  Max.   :857.00   Max.   :547.00   Max.   :552.00   Max.   :508.00  
-##                                                                     
-##   ScreenPorch        PoolArea           PoolQC         Fence     
-##  Min.   :  0.00   Min.   :  0.000   Ex     :   2   GdPrv  :  59  
-##  1st Qu.:  0.00   1st Qu.:  0.000   Fa     :   2   GdWo   :  54  
-##  Median :  0.00   Median :  0.000   Gd     :   3   missing:1179  
-##  Mean   : 15.06   Mean   :  2.759   missing:1453   MnPrv  : 157  
-##  3rd Qu.:  0.00   3rd Qu.:  0.000                  MnWw   :  11  
-##  Max.   :480.00   Max.   :738.000                                
-##                                                                  
-##   MiscFeature      MiscVal             MoSold           YrSold    
-##  Gar2   :   2   Min.   :    0.00   Min.   : 1.000   Min.   :2006  
-##  missing:1406   1st Qu.:    0.00   1st Qu.: 5.000   1st Qu.:2007  
-##  Othr   :   2   Median :    0.00   Median : 6.000   Median :2008  
-##  Shed   :  49   Mean   :   43.49   Mean   : 6.322   Mean   :2008  
-##  TenC   :   1   3rd Qu.:    0.00   3rd Qu.: 8.000   3rd Qu.:2009  
-##                 Max.   :15500.00   Max.   :12.000   Max.   :2010  
-##                                                                   
-##     SaleType    SaleCondition    SalePrice     
-##  WD     :1267   Abnorml: 101   Min.   : 34900  
-##  New    : 122   AdjLand:   4   1st Qu.:129975  
-##  COD    :  43   Alloca :  12   Median :163000  
-##  ConLD  :   9   Family :  20   Mean   :180921  
-##  ConLI  :   5   Normal :1198   3rd Qu.:214000  
-##  ConLw  :   5   Partial: 125   Max.   :755000  
-##  (Other):   9</code></pre>
-<p>&lt;&lt;&lt;&lt; Have to complete this section, below are the sections we can plan for working&gt;&gt;&gt;&gt;</p>
+##  Electrical     X1stFlrSF      X2ndFlrSF     LowQualFinSF    
+##  FuseA:  94   Min.   : 334   Min.   :   0   Min.   :  0.000  
+##  FuseF:  27   1st Qu.: 882   1st Qu.:   0   1st Qu.:  0.000  
+##  FuseP:   3   Median :1087   Median :   0   Median :  0.000  
+##  Mix  :   1   Mean   :1163   Mean   : 347   Mean   :  5.845  
+##  None :   1   3rd Qu.:1391   3rd Qu.: 728   3rd Qu.:  0.000  
+##  SBrkr:1334   Max.   :4692   Max.   :2065   Max.   :572.000  
+##                                                              
+##    GrLivArea    BsmtFullBath       BsmtHalfBath          FullBath    
+##  Min.   : 334   Length:1460        Length:1460        Min.   :0.000  
+##  1st Qu.:1130   Class :character   Class :character   1st Qu.:1.000  
+##  Median :1464   Mode  :character   Mode  :character   Median :2.000  
+##  Mean   :1515                                         Mean   :1.565  
+##  3rd Qu.:1777                                         3rd Qu.:2.000  
+##  Max.   :5642                                         Max.   :3.000  
+##                                                                      
+##     HalfBath       BedroomAbvGr    KitchenAbvGr   KitchenQual
+##  Min.   :0.0000   Min.   :0.000   Min.   :0.000   Ex  :100   
+##  1st Qu.:0.0000   1st Qu.:2.000   1st Qu.:1.000   Fa  : 39   
+##  Median :0.0000   Median :3.000   Median :1.000   Gd  :586   
+##  Mean   :0.3829   Mean   :2.866   Mean   :1.047   None:  0   
+##  3rd Qu.:1.0000   3rd Qu.:3.000   3rd Qu.:1.000   TA  :735   
+##  Max.   :2.0000   Max.   :8.000   Max.   :3.000              
+##                                                              
+##   TotRmsAbvGrd      Functional     Fireplaces    FireplaceQu   GarageType 
+##  Min.   : 2.000   Typ    :1360   Min.   :0.000   Ex  : 24    2Types :  6  
+##  1st Qu.: 5.000   Min2   :  34   1st Qu.:0.000   Fa  : 33    Attchd :870  
+##  Median : 6.000   Min1   :  31   Median :1.000   Gd  :380    Basment: 19  
+##  Mean   : 6.518   Mod    :  15   Mean   :0.613   None:690    BuiltIn: 88  
+##  3rd Qu.: 7.000   Maj1   :  14   3rd Qu.:1.000   Po  : 20    CarPort:  9  
+##  Max.   :14.000   Maj2   :   5   Max.   :3.000   TA  :313    Detchd :387  
+##                   (Other):   1                               None   : 81  
+##   GarageYrBlt   GarageFinish  GarageCars          GarageArea    
+##  Min.   :   0   Fin :352     Length:1460        Min.   :   0.0  
+##  1st Qu.:1958   None: 81     Class :character   1st Qu.: 334.5  
+##  Median :1977   RFn :422     Mode  :character   Median : 480.0  
+##  Mean   :1869   Unf :605                        Mean   : 473.0  
+##  3rd Qu.:2001                                   3rd Qu.: 576.0  
+##  Max.   :2010                                   Max.   :1418.0  
+##                                                                 
+##  GarageQual  GarageCond  PavedDrive   WoodDeckSF      OpenPorchSF    
+##  Ex  :   3   Ex  :   2   N:  90     Min.   :  0.00   Min.   :  0.00  
+##  Fa  :  48   Fa  :  35   P:  30     1st Qu.:  0.00   1st Qu.:  0.00  
+##  Gd  :  14   Gd  :   9   Y:1340     Median :  0.00   Median : 25.00  
+##  None:  81   None:  81              Mean   : 94.24   Mean   : 46.66  
+##  Po  :   3   Po  :   7              3rd Qu.:168.00   3rd Qu.: 68.00  
+##  TA  :1311   TA  :1326              Max.   :857.00   Max.   :547.00  
+##                                                                      
+##  EnclosedPorch      X3SsnPorch      ScreenPorch        PoolArea      
+##  Min.   :  0.00   Min.   :  0.00   Min.   :  0.00   Min.   :  0.000  
+##  1st Qu.:  0.00   1st Qu.:  0.00   1st Qu.:  0.00   1st Qu.:  0.000  
+##  Median :  0.00   Median :  0.00   Median :  0.00   Median :  0.000  
+##  Mean   : 21.95   Mean   :  3.41   Mean   : 15.06   Mean   :  2.759  
+##  3rd Qu.:  0.00   3rd Qu.:  0.00   3rd Qu.:  0.00   3rd Qu.:  0.000  
+##  Max.   :552.00   Max.   :508.00   Max.   :480.00   Max.   :738.000  
+##                                                                      
+##   PoolQC       Fence      MiscFeature    MiscVal             MoSold      
+##  Ex  :   2   GdPrv:  59   Gar2:   2   Min.   :    0.00   Min.   : 1.000  
+##  Fa  :   2   GdWo :  54   None:1406   1st Qu.:    0.00   1st Qu.: 5.000  
+##  Gd  :   3   MnPrv: 157   Othr:   2   Median :    0.00   Median : 6.000  
+##  None:1453   MnWw :  11   Shed:  49   Mean   :   43.49   Mean   : 6.322  
+##              None :1179   TenC:   1   3rd Qu.:    0.00   3rd Qu.: 8.000  
+##                                       Max.   :15500.00   Max.   :12.000  
+##                                                                          
+##      YrSold        SaleType    SaleCondition    SalePrice     
+##  Min.   :2006   WD     :1267   Abnorml: 101   Min.   : 34900  
+##  1st Qu.:2007   New    : 122   AdjLand:   4   1st Qu.:129975  
+##  Median :2008   COD    :  43   Alloca :  12   Median :163000  
+##  Mean   :2008   ConLD  :   9   Family :  20   Mean   :180921  
+##  3rd Qu.:2009   ConLI  :   5   Normal :1198   3rd Qu.:214000  
+##  Max.   :2010   ConLw  :   5   Partial: 125   Max.   :755000  
+##                 (Other):   9</code></pre>
 </div>
 </div>
 <div id="model-building" class="section level2">
