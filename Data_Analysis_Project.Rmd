@@ -152,13 +152,42 @@ Here's a brief description of different fields of the house data set.
 ###Data Analysis
 
 ```{r}
+## Import test and train data from the files
 
 train = read.csv("train.csv")
 test = read.csv("test.csv")
 
+## Checking the number of columns and observation in test and train data
+
+dim(train)
+dim(test)
+
 ```
 
+From the dimension of test and train data, we could see that the test data has one less column than the train, as the sale price column wont be availble in test data which we will be predicting as part of this project.
 
+<<<< Have to complete this section, below are the sections we can plan for working>>>>
+
+## Model Building
+- step 0 : Data exploration, cleansing and check for multicollineariaty
+- step 1 : Build a additive model with all variables
+- step 2 : Use one of the search methode to find out the best model for the additive
+- step 3 : check the normal distribution and constant variance assumption
+- step 4 : Do predictor or response transformation based on the results of the test in step 3
+- step 5 : Finalize the model
+- Step 6 : Chek for train and test RMSE
+- step 7 : check for leverage and influential observation
+- step 8 : Again check the RMSE after removing the influential observations
+- step 9 : predict the results with the final model
+
+Points to consider 
+
+1. Do we need to check LOOCV?
+
+
+## Results
+## Discussion
+## Appendix
 
 
 

@@ -133,6 +133,10 @@ $(document).ready(function () {
 <li><a href="#methods">Methods</a><ul>
 <li><a href="#data-analysis">Data Analysis</a></li>
 </ul></li>
+<li><a href="#model-building">Model Building</a></li>
+<li><a href="#results">Results</a></li>
+<li><a href="#discussion">Discussion</a></li>
+<li><a href="#appendix">Appendix</a></li>
 </ul>
 </div>
 
@@ -289,9 +293,48 @@ $(document).ready(function () {
 <h2>Methods</h2>
 <div id="data-analysis" class="section level3">
 <h3>Data Analysis</h3>
-<pre class="r"><code>train = read.csv(&quot;train.csv&quot;)
-test = read.csv(&quot;test.csv&quot;)</code></pre>
+<pre class="r"><code>## Import test and train data from the files
+
+train = read.csv(&quot;train.csv&quot;)
+test = read.csv(&quot;test.csv&quot;)
+
+## Checking the number of columns and observation in test and train data
+
+dim(train)</code></pre>
+<pre><code>## [1] 1460   81</code></pre>
+<pre class="r"><code>dim(test)</code></pre>
+<pre><code>## [1] 1459   80</code></pre>
+<p>From the dimension of test and train data, we could see that the test data has one less column than the train, as the sale price column wont be availble in test data which we will be predicting as part of this project.</p>
+<p>&lt;&lt;&lt;&lt; Have to complete this section, below are the sections we can plan for working&gt;&gt;&gt;&gt;</p>
 </div>
+</div>
+<div id="model-building" class="section level2">
+<h2>Model Building</h2>
+<ul>
+<li>step 0 : Data exploration, cleansing and check for multicollineariaty</li>
+<li>step 1 : Build a additive model with all variables</li>
+<li>step 2 : Use one of the search methode to find out the best model for the additive</li>
+<li>step 3 : check the normal distribution and constant variance assumption</li>
+<li>step 4 : Do predictor or response transformation based on the results of the test in step 3</li>
+<li>step 5 : Finalize the model</li>
+<li>Step 6 : Chek for train and test RMSE</li>
+<li>step 7 : check for leverage and influential observation</li>
+<li>step 8 : Again check the RMSE after removing the influential observations</li>
+<li>step 9 : predict the results with the final model</li>
+</ul>
+<p>Points to consider</p>
+<ol style="list-style-type: decimal">
+<li>Do we need to check LOOCV?</li>
+</ol>
+</div>
+<div id="results" class="section level2">
+<h2>Results</h2>
+</div>
+<div id="discussion" class="section level2">
+<h2>Discussion</h2>
+</div>
+<div id="appendix" class="section level2">
+<h2>Appendix</h2>
 </div>
 
 
