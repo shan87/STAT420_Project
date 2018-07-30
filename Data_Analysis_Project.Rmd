@@ -152,6 +152,18 @@ Here's a brief description of different fields of the house data set.
 ###Data Analysis
 
 ```{r}
+library(lmtest)
+library(broom)
+library(formattable)
+library(faraway)
+library(ggplot2)
+library(leaps)
+library(caret)
+```
+
+
+
+```{r}
 ## Import test and train data from the files
 
 train = read.csv("train.csv")
