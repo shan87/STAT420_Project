@@ -293,6 +293,25 @@ $(document).ready(function () {
 <h2>Methods</h2>
 <div id="data-analysis" class="section level3">
 <h3>Data Analysis</h3>
+<pre class="r"><code>library(lmtest)</code></pre>
+<pre><code>## Loading required package: zoo</code></pre>
+<pre><code>## 
+## Attaching package: 'zoo'</code></pre>
+<pre><code>## The following objects are masked from 'package:base':
+## 
+##     as.Date, as.Date.numeric</code></pre>
+<pre class="r"><code>library(broom)
+library(formattable)
+library(faraway)
+library(ggplot2)
+library(leaps)
+library(caret)</code></pre>
+<pre><code>## Loading required package: lattice</code></pre>
+<pre><code>## 
+## Attaching package: 'lattice'</code></pre>
+<pre><code>## The following object is masked from 'package:faraway':
+## 
+##     melanoma</code></pre>
 <pre class="r"><code>## Import test and train data from the files
 
 train = read.csv(&quot;train.csv&quot;)
