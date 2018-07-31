@@ -151,13 +151,12 @@ Here's a brief description of different fields of the house data set.
 
 ###Data Analysis
 
-```{r}
+```{r,mesage=FALSE,error=FALSE}
 library(lmtest)
 library(broom)
 library(formattable)
 library(faraway)
 library(ggplot2)
-library(leaps)
 library(caret)
 ```
 
@@ -279,22 +278,15 @@ str(train)
 
 ```
 
-Now the data looks fine. Lets try to build a additive model with all variable as initial model to do a BIC search on it to find a smaller models with appropriate predictiors.
+Now the data looks fine. 
+
+We can randomly split the train data set into 2 parts model_train and model_test, so that we will be able to test the model for the new data, which is not used for building the model and do some adjustment to models to avoid problems like over fitting.
 
 ```{r}
 
-initial_model = lm(SalePrice~.,data=train)
 
-BIC_selected = step(initial_model,k=log(nrow(train)),trace=0)
+````
 
-
-```
-
-```{r}
-
-summary(BIC_selected)
-
-```
 
 ## Model Building
 - step 0 : Data exploration, cleansing and check for multicollineariaty
