@@ -284,6 +284,10 @@ We can randomly split the train data set into 2 parts model_train and model_test
 
 ```{r}
 
+set.seed(1)
+house_trn_idx = sample(1:nrow(train), 730)
+house_trn = train[house_trn_idx,]
+house_tst = train[-house_trn_idx,]
 
 ````
 

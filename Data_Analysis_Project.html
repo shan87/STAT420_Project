@@ -644,6 +644,10 @@ test = house_data[(nrow(train)+1):nrow(house_data),]</code></pre>
 ##  $ SalePrice    : int  208500 181500 223500 140000 250000 143000 307000 200000 129900 118000 ...</code></pre>
 <p>Now the data looks fine.</p>
 <p>We can randomly split the train data set into 2 parts model_train and model_test, so that we will be able to test the model for the new data, which is not used for building the model and do some adjustment to models to avoid problems like over fitting.</p>
+<pre class="r"><code>set.seed(1)
+house_trn_idx = sample(1:nrow(train), 730)
+house_trn = train[house_trn_idx,]
+house_tst = train[-house_trn_idx,]</code></pre>
 </div>
 </div>
 <div id="model-building" class="section level2">
