@@ -273,86 +273,184 @@ test = house_data[(nrow(train)+1):nrow(house_data),]
 Lets now have a look at the train data set
 
 ```{r}
-str(train)
+#str(train)
+```
+
+```{r}
+#head(train)
+```
+
+```{r}
+#head(test)
+```
+
+**Need to write comments**
+
+```{r}
+
+set.seed(1)
+house_trn_idx = sample(1:nrow(train), 1168)
+house_trn = train[house_trn_idx,]
+house_tst = train[-house_trn_idx,]
 
 ```
 
-Now the data looks fine. Lets try to build a additive model with all variable as initial model to do a BIC search on it to find a smaller models with appropriate predictiors.
+```{r fig.height=8, fig.width=13}
+house_train_num<-house_trn[, sapply(house_trn, is.numeric)]
+Correlation<-cor(na.omit(house_train_num))
+library(corrplot)
+corrplot(Correlation, method = "square")
+(col_round = round(cor(Correlation), 2))
+
+```
+
+
+Now the data looks fine. Lets try to build a additive model with all variable as initial model to do a BIC search on it to find a smaller models with 
+appropriate predictiors.
 
 ```{r}
-for (col in colnames(train)){
-   if(is.numeric(train[,col])){
-       if( abs(cor(train[,col],train$SalePrice)) > 0.3){
+
+col_var = c(,)
+
+for (col in colnames(house_trn)){
+   if(is.numeric(house_trn[,col])){
+       if( abs(cor(house_trn[,col],house_trn$SalePrice)) > 0.3){
            print(col)
-           print( cor(train[,col],train$SalePrice) )
-       }
+           print( cor(house_trn[,col],house_trn$SalePrice))
+         }
    }
 }
 
 ```
 
+From the above correlation plot, we have selected the below varibles to build the model.
+
+```{r fig.height=7, fig.width=12}
+# Histogram expensive are houses?
+
+var_sel = c(SalePrice ,LotFrontage, OverallQual, YearBuilt,YearRemodAdd, MasVnrArea, BsmtFinSF1, TotalBsmtSF, X1stFlrSF, X2ndFlrSF,GrLivArea, FullBath, TotRmsAbvGrd, Fireplaces, GarageArea, WoodDeckSF)
+
+var_sel = c("house_trn$SalePrice" ,"house_trn$LotFrontage")
+
+
+
+par(mfrow = c(1,2))
+for(i in 1:length(var_sel))
+hist(toString(var_sel[i]),
+    xlab   = "var_sel",
+    main   = "Histogram of sales price",
+    border = "dodgerblue",
+    col    = "darkorange",
+    breaks = 20)
+
+
+
+qqnorm(train$SalePrice, main = "Normal Q-Q Plot, without log(SalePrice)", col = "darkgrey")
+qqline(train$SalePrice, col = "dodgerblue", lwd = 2)
+
+qqnorm(log(train$SalePrice), main = "Normal Q-Q Plot, with log(SalePrice) ", col = "darkgrey")
+qqline(log(train$SalePrice), col = "dodgerblue", lwd = 2)
+```
+
+
+
 ```{r}
-initial_model = lm(SalePrice~.,data=train)
-BIC_selected = step(initial_model,k=log(nrow(train)),trace=0)
 
 ```
 
-```{r}
 
-(vif_model <- coef(BIC_selected)[vif(BIC_selected) >5])
-#big_model_fix = lm(mpg ~ disp * hp * domestic,
-#data = autompg,
-#subset = vif_model < 4 / length(big_mod_cd))
+```{r}
+cors = cor(train[ , sapply(train, is.numeric)])
+high_cor = which(abs(cors) > 0.6 & (abs(cors) >= 1))
+rows = rownames(cors)[((high_cor-1) %/% 38)+1]
+cols = colnames(cors)[ifelse(high_cor %% 38 == 0, 38, high_cor %% 38)]
+vals = cors[high_cor]
+
+cor_data = data.frame(cols=cols, rows=rows, correlation=vals)
+cor_data
 ```
 
 
 ```{r}
-#summary(BIC_selected)
-
-BIC_Log_Select <- lm(log(SalePrice) ~ MSSubClass + LotArea + Street + Neighborhood + 
-    Condition2 + OverallQual + OverallCond + YearBuilt + RoofMatl + 
-    ExterQual + BsmtQual + BsmtExposure + BsmtFinSF1 + BsmtFinSF2 + 
-    BsmtUnfSF + X1stFlrSF + X2ndFlrSF + BedroomAbvGr + KitchenAbvGr + 
-    KitchenQual + TotRmsAbvGrd + GarageCars + ScreenPorch + PoolArea + 
-    PoolQC + SaleCondition, data = train)
-summary(BIC_Log_Select)
+head(train)
 ```
 
-**Checking for multicollineariaty**
-```{r}
-
-multi_col = coef(BIC_selected)[(vif(BIC_selected)>5)]
-#length(multi_col)
-```
-```{r}
-par(mfrow = c(2, 2))
-plot(fitted(BIC_selected), resid(BIC_selected), col = "grey", pch = 20,
-    xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
-abline(h = 0, col = "darkorange", lwd = 2)
-
-qqnorm(resid(BIC_selected), main = "Normal Q-Q Plot", col = "darkgrey")
-qqline(resid(BIC_selected), col = "dodgerblue", lwd = 2)
-
-#par(mfrow = c(2, 2))
-plot(fitted(BIC_Log_Select), resid(BIC_Log_Select), col = "grey", pch = 20,
-    xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
-abline(h = 0, col = "darkorange", lwd = 2)
-
-qqnorm(resid(BIC_Log_Select), main = "Normal Q-Q Plot", col = "darkgrey")
-qqline(resid(BIC_Log_Select), col = "dodgerblue", lwd = 2)
-
-```
 
 ```{r}
-bptest(BIC_selected)
+cors = cor(train[ , sapply(train, is.numeric)])
+high_cor = which(abs(cors) > 0.6 & (abs(cors) < 1))
+rows = rownames(cors)[((high_cor-1) %/% 38)+1]
+cols = colnames(cors)[ifelse(high_cor %% 38 == 0, 38, high_cor %% 38)]
+vals = cors[high_cor]
 
-bptest(BIC_Log_Select)
+cor_data = data.frame(cols=cols, rows=rows, correlation=vals)
+cor_data
 ```
-```{r}
-shapiro.test(resid(BIC_selected))
-shapiro.test(resid(BIC_Log_Select))
 
-```
+<!-- ```{r} -->
+<!-- initial_model = lm(SalePrice~.,data=train) -->
+<!-- BIC_selected = step(initial_model,k=log(nrow(train)),trace=0) -->
+
+<!-- ``` -->
+
+<!-- ```{r} -->
+
+<!-- (vif_model <- coef(BIC_selected)[vif(BIC_selected) >5]) -->
+<!-- #big_model_fix = lm(mpg ~ disp * hp * domestic, -->
+<!-- #data = autompg, -->
+<!-- #subset = vif_model < 4 / length(big_mod_cd)) -->
+<!-- ``` -->
+
+
+
+<!-- ```{r} -->
+<!-- #summary(BIC_selected) -->
+
+<!-- BIC_Log_Select <- lm(log(SalePrice) ~ MSSubClass + LotArea + Street + Neighborhood +  -->
+<!--     Condition2 + OverallQual + OverallCond + YearBuilt + RoofMatl +  -->
+<!--     ExterQual + BsmtQual + BsmtExposure + BsmtFinSF1 + BsmtFinSF2 +  -->
+<!--     BsmtUnfSF + X1stFlrSF + X2ndFlrSF + BedroomAbvGr + KitchenAbvGr +  -->
+<!--     KitchenQual + TotRmsAbvGrd + GarageCars + ScreenPorch + PoolArea +  -->
+<!--     PoolQC + SaleCondition, data = train) -->
+<!-- summary(BIC_Log_Select) -->
+<!-- ``` -->
+
+<!-- **Checking for multicollineariaty** -->
+<!-- ```{r} -->
+
+<!-- multi_col = coef(BIC_selected)[(vif(BIC_selected)>5)] -->
+<!-- #length(multi_col) -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- par(mfrow = c(2, 2)) -->
+<!-- plot(fitted(BIC_selected), resid(BIC_selected), col = "grey", pch = 20, -->
+<!--     xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2") -->
+<!-- abline(h = 0, col = "darkorange", lwd = 2) -->
+
+<!-- qqnorm(resid(BIC_selected), main = "Normal Q-Q Plot", col = "darkgrey") -->
+<!-- qqline(resid(BIC_selected), col = "dodgerblue", lwd = 2) -->
+
+<!-- #par(mfrow = c(2, 2)) -->
+<!-- plot(fitted(BIC_Log_Select), resid(BIC_Log_Select), col = "grey", pch = 20, -->
+<!--     xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2") -->
+<!-- abline(h = 0, col = "darkorange", lwd = 2) -->
+
+<!-- qqnorm(resid(BIC_Log_Select), main = "Normal Q-Q Plot", col = "darkgrey") -->
+<!-- qqline(resid(BIC_Log_Select), col = "dodgerblue", lwd = 2) -->
+
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+<!-- bptest(BIC_selected) -->
+
+<!-- bptest(BIC_Log_Select) -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- shapiro.test(resid(BIC_selected)) -->
+<!-- shapiro.test(resid(BIC_Log_Select)) -->
+
+<!-- ``` -->
 
 ## Model Building
 - step 0 : Data exploration, cleansing and check for multicollineariaty
@@ -370,6 +468,10 @@ shapiro.test(resid(BIC_Log_Select))
 **Note** 
   
   - Everytime we fit the model, we need to check the normal distribution and constant variance assumption
+  
+**Steps from Video**
+
+- 
 
 Points to consider 
 
