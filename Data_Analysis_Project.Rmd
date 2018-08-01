@@ -149,9 +149,9 @@ Here's a brief description of different fields of the house data set.
 
 ## Methods
 
-###Data Analysis
+###Data Import and Cleansing
 
-```{r}
+```{r,message=FALSE,error=FALSE}
 library(lmtest)
 library(broom)
 library(formattable)
@@ -166,13 +166,13 @@ library(caret)
 ```{r}
 ## Import test and train data from the files
 
-train = read.csv("train.csv")
-test = read.csv("test.csv")
+train = read.csv("train.csv", stringsAsFactors = FALSE) 
+test = read.csv("test.csv", stringsAsFactors = FALSE) 
 
 ## Checking the number of columns and observation in test and train data
 
-#dim(train)
-#dim(test)
+dim(train)
+dim(test)
 
 ```
 
@@ -180,8 +180,7 @@ From the dimension of test and train data, we could see that the test data has o
 
 ```{r}
 
-#str(train)
-#str(test)
+str(train)
 
 ```
 
@@ -191,10 +190,15 @@ We also see that some of the factor variables have different levels in train and
 
 We also can change any NA in the dataset to None while changing the factor of character columns
 
-```{r}
+We also can change the data types of the below features from numeric to string.
 
-train = read.csv("train.csv", stringsAsFactors = FALSE) 
-test = read.csv("test.csv", stringsAsFactors = FALSE) 
+** Features **	
+
+MSSubClass, OverallCond, OverallQual, GarageCars, YrSold, MoSold
+
+The values for each feature above represent different categories and not different amounts of something. This is easiest to see in the case of MSSubClass, where the numbers encode different categories of houses, such as 2-Story 1946 and Newer (60) and 2-Story 1945 and Older (70).  It is harder to discern in a feature like GarageCars, where each value seems to count something (cars) but in actuality represents the garage capacity, and therefore represents a category.
+
+```{r}
 
 # Remove the target variable not found in test set
 
@@ -204,6 +208,15 @@ train$SalePrice = NULL
 # Combine data sets
 
 house_data = rbind(train,test)
+
+##Change Numeric to factor
+
+house_data$MSSubClass = as.character(house_data$MSSubClass)
+house_data$OverallCond = as.character(house_data$OverallCond)
+house_data$OverallQual = as.character(house_data$OverallQual)
+house_data$GarageCars = as.character(house_data$GarageCars)
+house_data$YrSold = as.character(house_data$YrSold)
+house_data$MoSold = as.character(house_data$MoSold)
 
 # Convert character columns to factor, filling NA values with "None"
 
@@ -239,24 +252,25 @@ house_data$LotFrontage[which(is.na(house_data$LotFrontage))] = median(house_data
 
 house_data$GarageYrBlt[which(is.na(house_data$GarageYrBlt))] = 0 
 
-house_data$GarageArea[which(is.na(house_data$GarageArea))] = mean(house_data$GarageArea,na.rm=T)
+## Impute 0
 
-house_data$TotalBsmtSF[which(is.na(house_data$TotalBsmtSF))] = mean(house_data$TotalBsmtSF,na.rm=T)
+house_data$BsmtFullBath[which(is.na(house_data$BsmtFullBath ))] = 0
 
-house_data$BsmtUnfSF[which(is.na(house_data$BsmtUnfSF))] = mean(house_data$BsmtUnfSF,na.rm=T)
+house_data$BsmtHalfBath[which(is.na(house_data$BsmtHalfBath ))] = 0
 
-house_data$BsmtFinSF1[which(is.na(house_data$BsmtFinSF1))] = mean(house_data$BsmtFinSF1,na.rm=T)
+house_data$BsmtUnfSF[which(is.na(house_data$BsmtUnfSF))] = 0
 
-house_data$BsmtFinSF2[which(is.na(house_data$BsmtFinSF2))] = mean(house_data$BsmtFinSF2,na.rm=T)
+house_data$BsmtFinSF1[which(is.na(house_data$BsmtFinSF1))] = 0
 
-house_data$GarageCars[which(is.na(house_data$GarageCars))] = mode(house_data$GarageCars)
+house_data$BsmtFinSF2[which(is.na(house_data$BsmtFinSF2))] = 0
 
-house_data$BsmtHalfBath[which(is.na(house_data$BsmtHalfBath ))] = mode(house_data$BsmtHalfBath)
+house_data$GarageArea[which(is.na(house_data$GarageArea))] = 0
 
-house_data$BsmtFullBath[which(is.na(house_data$BsmtFullBath ))] = mode(house_data$BsmtFullBath)
+house_data$GarageCars[which(is.na(house_data$GarageCars))] = 0
+
+house_data$TotalBsmtSF[which(is.na(house_data$TotalBsmtSF))] = 0
 
 ```
-
 
 separate the train and test data after fixing the NA values
 
@@ -270,19 +284,13 @@ test = house_data[(nrow(train)+1):nrow(house_data),]
 
 ```
 
+
 Lets now have a look at the train data set
 
 ```{r}
-#str(train)
+str(train)
 ```
 
-```{r}
-#head(train)
-```
-
-```{r}
-#head(test)
-```
 
 **Need to write comments**
 
@@ -300,19 +308,16 @@ house_train_num<-house_trn[, sapply(house_trn, is.numeric)]
 Correlation<-cor(na.omit(house_train_num))
 library(corrplot)
 corrplot(Correlation, method = "square")
-(col_round = round(cor(Correlation), 2))
+#(col_round = round(cor(Correlation), 2))
 
 ```
 
-
-Now the data looks fine. Lets try to build a additive model with all variable as initial model to do a BIC search on it to find a smaller models with 
-appropriate predictiors.
-
+Variable which has high corelation with sales price
 ```{r}
 
 for (col in colnames(house_trn)){
    if(is.numeric(house_trn[,col])){
-       if( abs(cor(house_trn[,col],house_trn$SalePrice)) > 0.3){
+       if( abs(cor(house_trn[,col],house_trn$SalePrice)) > 0.5){
            print(col)
            print( cor(house_trn[,col],house_trn$SalePrice))
          }
@@ -321,36 +326,23 @@ for (col in colnames(house_trn)){
 
 ```
 
-From the above correlation plot, we have selected the below varibles to build the model.
+### Data Exploration
 
-```{r fig.height=7, fig.width=12}
-# Histogram expensive are houses?
-
-var_sel = c("LotFrontage", "OverallQual", "YearBuilt", "YearRemodAdd", "MasVnrArea" ,  "BsmtFinSF1", "TotalBsmtSF", "X1stFlrSF", "X2ndFlrSF","GrLivArea", "FullBath", "TotRmsAbvGrd", "Fireplaces", "GarageArea", "WoodDeckSF")
-
-par(mfrow = c(1,2))
-for(i in 1:length(var_sel))
-hist(house_trn[,var_sel[i]],
-    xlab   = paste(toString(var_sel[i])),
-    main   = paste("Histogram of ",toString(var_sel[i])),
-    border = "blue",
-    breaks = 20)
-
-
+```{r fig.width=10}
 
 par(mfrow = c(1,2))
 
 hist(house_trn$SalePrice,
     xlab   = "Sale Price without log(SalePrice)",
     main   = "Histogram of sales price",
-    border = "blue",
+    border = "orange",
 
     breaks = 20)
 
 hist(log(house_trn$SalePrice),
     xlab   = "Sale Price with log(SalePrice)",
     main   = "Histogram of sales price",
-    border = "blue",
+    border = "orange",
   
     breaks = 20)
 
@@ -359,13 +351,31 @@ qqline(house_trn$SalePrice, col = "dodgerblue", lwd = 2)
 
 qqnorm(log(house_trn$SalePrice), main = "Normal Q-Q Plot, with log(SalePrice) ", col = "darkgrey")
 qqline(log(house_trn$SalePrice), col = "dodgerblue", lwd = 2)
+
+```
+
+
+```{r fig.height=3, fig.width=10}
+
+var_sel = c("YearBuilt", "YearRemodAdd","TotalBsmtSF", "X1stFlrSF","GrLivArea", "FullBath", "TotRmsAbvGrd", "GarageArea")
+
+par(mfrow = c(1,2))
+for(i in 1:length(var_sel))
+hist(house_trn[,var_sel[i]],
+    xlab   = paste(toString(var_sel[i])),
+    main   = paste("Histogram of ",toString(var_sel[i])),
+    border = "Orange",
+    breaks = 20)
+
+
+
 ```
 
 
 
 ```{r}
 
-int_add_mod = lm(log(SalePrice) ~ LotFrontage + OverallQual + YearBuilt + YearRemodAdd + MasVnrArea +  BsmtFinSF1 + TotalBsmtSF + X1stFlrSF + X2ndFlrSF + log(GrLivArea) + Neighborhood  + FullBath + TotRmsAbvGrd + Fireplaces + GarageArea + WoodDeckSF + Foundation + MSSubClass + GarageType, data = house_trn)
+int_add_mod = lm(log(SalePrice) ~ OverallQual + YearBuilt + YearRemodAdd + TotalBsmtSF + X1stFlrSF + log(GrLivArea) + Neighborhood  + FullBath + TotRmsAbvGrd + GarageArea + Foundation + MSSubClass + GarageType, data = house_trn)
 summary(int_add_mod)
 
 ```
@@ -378,14 +388,6 @@ abline(h = 0, col = "darkorange", lwd = 2)
 
 qqnorm(resid(int_add_mod), main = "Normal Q-Q Plot", col = "darkgrey")
 qqline(resid(int_add_mod), col = "dodgerblue", lwd = 2)
-# 
-# #par(mfrow = c(2, 2))
-# plot(fitted(int_add_mod), resid(int_add_mod), col = "grey", pch = 20,
-#     xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
-# abline(h = 0, col = "darkorange", lwd = 2)
-# 
-# qqnorm(resid(int_add_mod), main = "Normal Q-Q Plot", col = "darkgrey")
-# qqline(resid(int_add_mod), col = "dodgerblue", lwd = 2)
 
 ```
 
