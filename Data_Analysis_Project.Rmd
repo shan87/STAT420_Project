@@ -171,8 +171,8 @@ test = read.csv("test.csv")
 
 ## Checking the number of columns and observation in test and train data
 
-dim(train)
-dim(test)
+#dim(train)
+#dim(test)
 
 ```
 
@@ -180,8 +180,8 @@ From the dimension of test and train data, we could see that the test data has o
 
 ```{r}
 
-str(train)
-str(test)
+#str(train)
+#str(test)
 
 ```
 
@@ -310,8 +310,6 @@ appropriate predictiors.
 
 ```{r}
 
-col_var = c(,)
-
 for (col in colnames(house_trn)){
    if(is.numeric(house_trn[,col])){
        if( abs(cor(house_trn[,col],house_trn$SalePrice)) > 0.3){
@@ -328,34 +326,74 @@ From the above correlation plot, we have selected the below varibles to build th
 ```{r fig.height=7, fig.width=12}
 # Histogram expensive are houses?
 
-var_sel = c(SalePrice ,LotFrontage, OverallQual, YearBuilt,YearRemodAdd, MasVnrArea, BsmtFinSF1, TotalBsmtSF, X1stFlrSF, X2ndFlrSF,GrLivArea, FullBath, TotRmsAbvGrd, Fireplaces, GarageArea, WoodDeckSF)
-
-var_sel = c("house_trn$SalePrice" ,"house_trn$LotFrontage")
-
-
+var_sel = c("LotFrontage", "OverallQual", "YearBuilt", "YearRemodAdd", "MasVnrArea" ,  "BsmtFinSF1", "TotalBsmtSF", "X1stFlrSF", "X2ndFlrSF","GrLivArea", "FullBath", "TotRmsAbvGrd", "Fireplaces", "GarageArea", "WoodDeckSF")
 
 par(mfrow = c(1,2))
 for(i in 1:length(var_sel))
-hist(toString(var_sel[i]),
-    xlab   = "var_sel",
-    main   = "Histogram of sales price",
-    border = "dodgerblue",
-    col    = "darkorange",
+hist(house_trn[,var_sel[i]],
+    xlab   = paste(toString(var_sel[i])),
+    main   = paste("Histogram of ",toString(var_sel[i])),
+    border = "blue",
     breaks = 20)
 
 
 
-qqnorm(train$SalePrice, main = "Normal Q-Q Plot, without log(SalePrice)", col = "darkgrey")
-qqline(train$SalePrice, col = "dodgerblue", lwd = 2)
+par(mfrow = c(1,2))
 
-qqnorm(log(train$SalePrice), main = "Normal Q-Q Plot, with log(SalePrice) ", col = "darkgrey")
-qqline(log(train$SalePrice), col = "dodgerblue", lwd = 2)
+hist(house_trn$SalePrice,
+    xlab   = "Sale Price without log(SalePrice)",
+    main   = "Histogram of sales price",
+    border = "blue",
+
+    breaks = 20)
+
+hist(log(house_trn$SalePrice),
+    xlab   = "Sale Price with log(SalePrice)",
+    main   = "Histogram of sales price",
+    border = "blue",
+  
+    breaks = 20)
+
+qqnorm(house_trn$SalePrice, main = "Normal Q-Q Plot, without log(SalePrice)", col = "darkgrey")
+qqline(house_trn$SalePrice, col = "dodgerblue", lwd = 2)
+
+qqnorm(log(house_trn$SalePrice), main = "Normal Q-Q Plot, with log(SalePrice) ", col = "darkgrey")
+qqline(log(house_trn$SalePrice), col = "dodgerblue", lwd = 2)
 ```
 
 
 
 ```{r}
 
+int_add_mod = lm(log(SalePrice) ~ LotFrontage + OverallQual + YearBuilt + YearRemodAdd + MasVnrArea +  BsmtFinSF1 + TotalBsmtSF + X1stFlrSF + X2ndFlrSF + log(GrLivArea) + Neighborhood  + FullBath + TotRmsAbvGrd + Fireplaces + GarageArea + WoodDeckSF + Foundation + MSSubClass + GarageType, data = house_trn)
+summary(int_add_mod)
+
+```
+
+```{r}
+par(mfrow = c(1, 2))
+plot(fitted(int_add_mod), resid(int_add_mod), col = "grey", pch = 20,
+    xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
+abline(h = 0, col = "darkorange", lwd = 2)
+
+qqnorm(resid(int_add_mod), main = "Normal Q-Q Plot", col = "darkgrey")
+qqline(resid(int_add_mod), col = "dodgerblue", lwd = 2)
+# 
+# #par(mfrow = c(2, 2))
+# plot(fitted(int_add_mod), resid(int_add_mod), col = "grey", pch = 20,
+#     xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
+# abline(h = 0, col = "darkorange", lwd = 2)
+# 
+# qqnorm(resid(int_add_mod), main = "Normal Q-Q Plot", col = "darkgrey")
+# qqline(resid(int_add_mod), col = "dodgerblue", lwd = 2)
+
+```
+
+
+```{r}
+library(lmtest)
+bptest(int_add_mod)
+shapiro.test(resid(int_add_mod))
 ```
 
 
@@ -368,11 +406,6 @@ vals = cors[high_cor]
 
 cor_data = data.frame(cols=cols, rows=rows, correlation=vals)
 cor_data
-```
-
-
-```{r}
-head(train)
 ```
 
 
@@ -420,24 +453,6 @@ cor_data
 
 <!-- multi_col = coef(BIC_selected)[(vif(BIC_selected)>5)] -->
 <!-- #length(multi_col) -->
-<!-- ``` -->
-<!-- ```{r} -->
-<!-- par(mfrow = c(2, 2)) -->
-<!-- plot(fitted(BIC_selected), resid(BIC_selected), col = "grey", pch = 20, -->
-<!--     xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2") -->
-<!-- abline(h = 0, col = "darkorange", lwd = 2) -->
-
-<!-- qqnorm(resid(BIC_selected), main = "Normal Q-Q Plot", col = "darkgrey") -->
-<!-- qqline(resid(BIC_selected), col = "dodgerblue", lwd = 2) -->
-
-<!-- #par(mfrow = c(2, 2)) -->
-<!-- plot(fitted(BIC_Log_Select), resid(BIC_Log_Select), col = "grey", pch = 20, -->
-<!--     xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2") -->
-<!-- abline(h = 0, col = "darkorange", lwd = 2) -->
-
-<!-- qqnorm(resid(BIC_Log_Select), main = "Normal Q-Q Plot", col = "darkgrey") -->
-<!-- qqline(resid(BIC_Log_Select), col = "dodgerblue", lwd = 2) -->
-
 <!-- ``` -->
 
 
