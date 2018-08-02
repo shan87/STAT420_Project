@@ -359,7 +359,7 @@ qqline(log(house_trn$SalePrice), col = "dodgerblue", lwd = 2)
 
 var_sel = c("YearBuilt", "YearRemodAdd","TotalBsmtSF", "X1stFlrSF","GrLivArea", "FullBath", "TotRmsAbvGrd", "GarageArea")
 
-par(mfrow = c(1,2))
+par(mfrow = c(1,3))
 for(i in 1:length(var_sel))
 hist(house_trn[,var_sel[i]],
     xlab   = paste(toString(var_sel[i])),
@@ -372,10 +372,30 @@ hist(house_trn[,var_sel[i]],
 ```
 
 
+```{r fig.height=5, fig.width=15}
+
+char_var = as.array(names(house_trn[, sapply(house_trn, class) == 'factor']))
+
+par(mfrow = c(1,2))
+for(i in 1:length(char_var))
+boxplot(house_trn$SalePrice ~ house_trn[,char_var[i]], data = mpg,
+     xlab   = paste(toString(char_var[i])),
+     ylab   = "Sales price",
+     main   = paste("saleprice vs", toString(char_var[i])),
+     pch    = 20,
+     cex    = 2,
+     las=1,
+     outlier.size=10,
+     col    = "blue",
+     border = "black")
+
+```
+
+
 
 ```{r}
 
-int_add_mod = lm(log(SalePrice) ~ OverallQual + YearBuilt + YearRemodAdd + TotalBsmtSF + X1stFlrSF + log(GrLivArea) + Neighborhood  + FullBath + TotRmsAbvGrd + GarageArea + Foundation  + GarageType, data = house_trn)
+int_add_mod = lm(log(SalePrice) ~ OverallQual + YearBuilt + YearRemodAdd + TotalBsmtSF + X1stFlrSF + log(GrLivArea) + Neighborhood  + FullBath + TotRmsAbvGrd + GarageArea + Foundation  + GarageType + MSSubClass, data = house_trn)
 summary(int_add_mod)
 
 ```
