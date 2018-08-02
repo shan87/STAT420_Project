@@ -268,7 +268,8 @@ house_data$GarageArea[which(is.na(house_data$GarageArea))] = 0
 
 house_data$GarageCars[which(is.na(house_data$GarageCars))] = 0
 
-house_data$TotalBsmtSF[which(is.na(house_data$TotalBsmtSF))] = 0
+house_data$TotalBsmtSF[which(is.na(house_data$TotalBsmtSF))] = 
+  mean(house_data$TotalBsmtSF,na.rm=T)
 
 ```
 
@@ -300,6 +301,9 @@ set.seed(1)
 house_trn_idx = sample(1:nrow(train), 1168)
 house_trn = train[house_trn_idx,]
 house_tst = train[-house_trn_idx,]
+
+house_trn$GarageArea= as.integer(house_trn$GarageArea)
+
 
 ```
 
@@ -395,8 +399,40 @@ boxplot(house_trn$SalePrice ~ house_trn[,char_var[i]], data = mpg,
 
 ```{r}
 
-int_add_mod = lm(log(SalePrice) ~ OverallQual + YearBuilt + YearRemodAdd + TotalBsmtSF + X1stFlrSF + log(GrLivArea) + Neighborhood  + FullBath + TotRmsAbvGrd + GarageArea + Foundation  + GarageType + MSSubClass, data = house_trn)
+#View(house_trn)
+#int_add_mod = lm(log(SalePrice) ~ OverallQual+ GrLivArea +YearBuilt, data = house_trn  , subset = house_trn$SalePrice < 400000)
+
+##Working for BP
+
+#int_add_mod = lm(log(SalePrice) ~  (log(GrLivArea)+I(FullBath)^2 +TotRmsAbvGrd+GarageCars)^2, data = house_trn  , subset = (house_trn$GrLivArea < 4000 & house_trn$SalePrice < 400000))
+
+##improved BP and shapiro
+
+#int_add_mod = lm(log(SalePrice) ~  (log(GrLivArea)+YearBuilt+FullBath +TotRmsAbvGrd+GarageCars)^2, data = house_trn)
+
+ int_add_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+ I(YearBuilt)^2 + I(YearRemodAdd)^2 + Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn)
+ 
+
+ big_mod_cd = cooks.distance(int_add_mod)
+ 
+ int_add_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+ I(YearBuilt)^2 + I(YearRemodAdd)^2 + Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn  , subset = big_mod_cd < 4 / length(big_mod_cd))
+
+
+#int_add_mod = lm(log(SalePrice) ~ OverallQual + YearBuilt + YearRemodAdd + TotalBsmtSF + X1stFlrSF + log(GrLivArea) + Neighborhood  + FullBath + TotRmsAbvGrd + GarageArea + Foundation  + GarageType , data = house_trn)
+
 summary(int_add_mod)
+
+par(mfrow = c(1, 2))
+plot(fitted(int_add_mod), resid(int_add_mod), col = "grey", pch = 20,
+    xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
+abline(h = 0, col = "darkorange", lwd = 2)
+
+qqnorm(resid(int_add_mod), main = "Normal Q-Q Plot", col = "darkgrey")
+qqline(resid(int_add_mod), col = "dodgerblue", lwd = 2)
+
+library(lmtest)
+bptest(int_add_mod)
+shapiro.test(resid(int_add_mod))
 
 ```
 
@@ -418,20 +454,38 @@ bptest(int_add_mod)
 shapiro.test(resid(int_add_mod))
 ```
 
+```{r,eval=FALSE}
 
-```{r}
-cors = cor(train[ , sapply(train, is.numeric)])
-high_cor = which(abs(cors) > 0.6 & (abs(cors) >= 1))
-rows = rownames(cors)[((high_cor-1) %/% 38)+1]
-cols = colnames(cors)[ifelse(high_cor %% 38 == 0, 38, high_cor %% 38)]
-vals = cors[high_cor]
+interation_model = lm(log(SalePrice) ~ (OverallQual + YearBuilt + YearRemodAdd + TotalBsmtSF + X1stFlrSF + I(GrLivArea)^2 + Neighborhood  + FullBath + TotRmsAbvGrd + GarageArea  )^2, data = house_trn)
 
-cor_data = data.frame(cols=cols, rows=rows, correlation=vals)
-cor_data
+#+ MSSubClass +  Foundation  + GarageType
+BIC_model = step (interation_model,k=log(nrow(house_trn)),trace=0)
+
+summary(BIC_model)
+
+
+```
+
+```{r,eval=FALSE}
+library(lmtest)
+bptest(BIC_model)
+shapiro.test(resid(BIC_model))
 ```
 
 
-```{r}
+```{r,eval=FALSE}
+par(mfrow = c(1, 2))
+plot(fitted(BIC_model), col = "grey", pch = 20,
+    xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
+abline(h = 0, col = "darkorange", lwd = 2)
+
+qqnorm(resid(BIC_model),main ="Normal Q-Q Plot", col = "darkgrey")
+qqline(resid(BIC_model), col = "dodgerblue", lwd = 2)
+
+```
+
+
+```{r,eval=FALSE}
 cors = cor(train[ , sapply(train, is.numeric)])
 high_cor = which(abs(cors) > 0.6 & (abs(cors) < 1))
 rows = rownames(cors)[((high_cor-1) %/% 38)+1]
