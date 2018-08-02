@@ -397,15 +397,13 @@ boxplot(house_trn$SalePrice ~ house_trn[,char_var[i]], data = mpg,
 
 #Good BP and shapiro
 
-class(house_trn$FullBath)
-
-int_add_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+I(YearBuilt)^2+ YearRemodAdd + Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn)
+int_add_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+YearBuilt+ YearRemodAdd + Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn)
  
- big_mod_cd = cooks.distance(int_add_mod)
+  big_mod_cd = cooks.distance(int_add_mod)
+  
+  int_add_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+YearBuilt + YearRemodAdd + Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn  , subset = big_mod_cd < 4 / length(big_mod_cd))
+  
  
- int_add_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+I(YearBuilt)^2 + YearRemodAdd + Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn  , subset = big_mod_cd < 4 / length(big_mod_cd))
-
-
 #int_add_mod = lm(log(SalePrice) ~ OverallQual + YearBuilt + YearRemodAdd + TotalBsmtSF + X1stFlrSF + log(GrLivArea) + Neighborhood  + FullBath + TotRmsAbvGrd + GarageArea + Foundation  + GarageType , data = house_trn)
 
 summary(int_add_mod)
@@ -441,6 +439,7 @@ library(lmtest)
 bptest(int_add_mod)
 shapiro.test(resid(int_add_mod))
 ```
+
 
 ```{r,eval=FALSE}
 
