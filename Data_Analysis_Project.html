@@ -664,12 +664,11 @@ boxplot(house_trn$SalePrice ~ house_trn[,char_var[i]], data = mpg,
 
 #int_add_mod = lm(log(SalePrice) ~  (log(GrLivArea)+YearBuilt+FullBath +TotRmsAbvGrd+GarageCars)^2, data = house_trn)
 
- int_add_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+ I(YearBuilt)^2 + I(YearRemodAdd)^2 + Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn)
- 
+int_add_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+I(YearBuilt)^2+ YearRemodAdd + Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn)
 
- big_mod_cd = cooks.distance(int_add_mod)
- 
- int_add_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+ I(YearBuilt)^2 + I(YearRemodAdd)^2 + Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn  , subset = big_mod_cd &lt; 4 / length(big_mod_cd))
+big_mod_cd = cooks.distance(int_add_mod)
+
+int_add_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+I(YearBuilt)^2 + YearRemodAdd + Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn  , subset = big_mod_cd &lt; 4 / length(big_mod_cd))
 
 
 #int_add_mod = lm(log(SalePrice) ~ OverallQual + YearBuilt + YearRemodAdd + TotalBsmtSF + X1stFlrSF + log(GrLivArea) + Neighborhood  + FullBath + TotRmsAbvGrd + GarageArea + Foundation  + GarageType , data = house_trn)
@@ -678,7 +677,7 @@ summary(int_add_mod)</code></pre>
 <pre><code>## 
 ## Call:
 ## lm(formula = log(SalePrice) ~ (log(GrLivArea) + OverallQual + 
-##     I(YearBuilt)^2 + I(YearRemodAdd)^2 + Neighborhood + log(TotRmsAbvGrd) + 
+##     I(YearBuilt)^2 + YearRemodAdd + Neighborhood + log(TotRmsAbvGrd) + 
 ##     ExterQual)^2, data = house_trn, subset = big_mod_cd &lt; 4/length(big_mod_cd))
 ## 
 ## Residuals:
@@ -697,7 +696,7 @@ summary(int_add_mod)</code></pre>
 ## OverallQual8                           4.017e+02  5.495e+02   0.731
 ## OverallQual9                          -9.540e+02  1.325e+03  -0.720
 ## I(YearBuilt)                          -6.900e-01  6.829e-01  -1.010
-## I(YearRemodAdd)                        2.375e-01  2.647e-01   0.897
+## YearRemodAdd                           2.375e-01  2.647e-01   0.897
 ## NeighborhoodBrDale                     3.114e+02  2.687e+02   1.159
 ## NeighborhoodBrkSide                    3.247e+02  2.537e+02   1.280
 ## NeighborhoodClearCr                    3.378e+02  2.537e+02   1.332
@@ -731,7 +730,7 @@ summary(int_add_mod)</code></pre>
 ## log(GrLivArea):OverallQual8            6.608e-01  1.465e+00   0.451
 ## log(GrLivArea):OverallQual9           -5.464e-02  1.350e+00  -0.040
 ## log(GrLivArea):I(YearBuilt)           -4.084e-04  2.408e-03  -0.170
-## log(GrLivArea):I(YearRemodAdd)         2.983e-03  1.808e-03   1.650
+## log(GrLivArea):YearRemodAdd            2.983e-03  1.808e-03   1.650
 ## log(GrLivArea):NeighborhoodBrDale     -2.264e+00  1.847e+00  -1.226
 ## log(GrLivArea):NeighborhoodBrkSide    -1.426e+00  1.386e+00  -1.029
 ## log(GrLivArea):NeighborhoodClearCr    -1.191e+00  1.400e+00  -0.850
@@ -764,13 +763,13 @@ summary(int_add_mod)</code></pre>
 ## OverallQual7:I(YearBuilt)             -1.626e-01  2.795e-01  -0.582
 ## OverallQual8:I(YearBuilt)             -1.576e-01  2.794e-01  -0.564
 ## OverallQual9:I(YearBuilt)              4.752e-01  6.627e-01   0.717
-## OverallQual3:I(YearRemodAdd)          -7.928e-02  1.234e-01  -0.643
-## OverallQual4:I(YearRemodAdd)          -4.716e-02  8.497e-02  -0.555
-## OverallQual5:I(YearRemodAdd)          -4.476e-02  8.497e-02  -0.527
-## OverallQual6:I(YearRemodAdd)          -4.481e-02  8.497e-02  -0.527
-## OverallQual7:I(YearRemodAdd)          -4.604e-02  8.496e-02  -0.542
-## OverallQual8:I(YearRemodAdd)          -4.056e-02  8.494e-02  -0.477
-## OverallQual9:I(YearRemodAdd)                  NA         NA      NA
+## OverallQual3:YearRemodAdd             -7.928e-02  1.234e-01  -0.643
+## OverallQual4:YearRemodAdd             -4.716e-02  8.497e-02  -0.555
+## OverallQual5:YearRemodAdd             -4.476e-02  8.497e-02  -0.527
+## OverallQual6:YearRemodAdd             -4.481e-02  8.497e-02  -0.527
+## OverallQual7:YearRemodAdd             -4.604e-02  8.496e-02  -0.542
+## OverallQual8:YearRemodAdd             -4.056e-02  8.494e-02  -0.477
+## OverallQual9:YearRemodAdd                     NA         NA      NA
 ## OverallQual3:NeighborhoodBrDale               NA         NA      NA
 ## OverallQual4:NeighborhoodBrDale               NA         NA      NA
 ## OverallQual5:NeighborhoodBrDale        4.020e-01  2.434e-01   1.652
@@ -946,7 +945,7 @@ summary(int_add_mod)</code></pre>
 ## OverallQual7:ExterQualTA                      NA         NA      NA
 ## OverallQual8:ExterQualTA                      NA         NA      NA
 ## OverallQual9:ExterQualTA                      NA         NA      NA
-## I(YearBuilt):I(YearRemodAdd)           2.970e-05  1.856e-05   1.600
+## I(YearBuilt):YearRemodAdd              2.970e-05  1.856e-05   1.600
 ## I(YearBuilt):NeighborhoodBrDale       -1.486e-01  1.311e-01  -1.133
 ## I(YearBuilt):NeighborhoodBrkSide       1.136e-01  1.400e-01   0.811
 ## I(YearBuilt):NeighborhoodClearCr       1.091e-01  1.400e-01   0.779
@@ -972,31 +971,31 @@ summary(int_add_mod)</code></pre>
 ## I(YearBuilt):log(TotRmsAbvGrd)        -1.753e-03  2.651e-03  -0.661
 ## I(YearBuilt):ExterQualGd               6.832e-01  9.310e-01   0.734
 ## I(YearBuilt):ExterQualTA               6.861e-01  9.310e-01   0.737
-## I(YearRemodAdd):NeighborhoodBrDale            NA         NA      NA
-## I(YearRemodAdd):NeighborhoodBrkSide   -2.717e-01  2.474e-01  -1.098
-## I(YearRemodAdd):NeighborhoodClearCr   -2.735e-01  2.474e-01  -1.106
-## I(YearRemodAdd):NeighborhoodCollgCr   -2.701e-01  2.474e-01  -1.092
-## I(YearRemodAdd):NeighborhoodCrawfor   -2.713e-01  2.474e-01  -1.097
-## I(YearRemodAdd):NeighborhoodEdwards   -2.702e-01  2.474e-01  -1.092
-## I(YearRemodAdd):NeighborhoodGilbert   -3.171e-01  2.491e-01  -1.273
-## I(YearRemodAdd):NeighborhoodIDOTRR    -2.672e-01  2.474e-01  -1.080
-## I(YearRemodAdd):NeighborhoodMeadowV   -2.686e-01  2.474e-01  -1.086
-## I(YearRemodAdd):NeighborhoodMitchel   -2.772e-01  2.474e-01  -1.121
-## I(YearRemodAdd):NeighborhoodNAmes     -2.722e-01  2.474e-01  -1.100
-## I(YearRemodAdd):NeighborhoodNoRidge   -2.674e-01  2.480e-01  -1.078
-## I(YearRemodAdd):NeighborhoodNPkVill           NA         NA      NA
-## I(YearRemodAdd):NeighborhoodNridgHt   -1.981e-01  2.508e-01  -0.790
-## I(YearRemodAdd):NeighborhoodNWAmes    -2.714e-01  2.474e-01  -1.097
-## I(YearRemodAdd):NeighborhoodOldTown   -2.705e-01  2.474e-01  -1.093
-## I(YearRemodAdd):NeighborhoodSawyer    -2.724e-01  2.474e-01  -1.101
-## I(YearRemodAdd):NeighborhoodSawyerW   -2.979e-01  2.477e-01  -1.203
-## I(YearRemodAdd):NeighborhoodSomerst   -2.057e-01  2.495e-01  -0.825
-## I(YearRemodAdd):NeighborhoodStoneBr   -2.940e-01  2.607e-01  -1.128
-## I(YearRemodAdd):NeighborhoodSWISU     -2.721e-01  2.474e-01  -1.100
-## I(YearRemodAdd):NeighborhoodTimber    -2.822e-01  2.585e-01  -1.092
-## I(YearRemodAdd):log(TotRmsAbvGrd)      1.115e-03  2.073e-03   0.538
-## I(YearRemodAdd):ExterQualGd           -6.521e-04  1.285e-03  -0.507
-## I(YearRemodAdd):ExterQualTA                   NA         NA      NA
+## YearRemodAdd:NeighborhoodBrDale               NA         NA      NA
+## YearRemodAdd:NeighborhoodBrkSide      -2.717e-01  2.474e-01  -1.098
+## YearRemodAdd:NeighborhoodClearCr      -2.735e-01  2.474e-01  -1.106
+## YearRemodAdd:NeighborhoodCollgCr      -2.701e-01  2.474e-01  -1.092
+## YearRemodAdd:NeighborhoodCrawfor      -2.713e-01  2.474e-01  -1.097
+## YearRemodAdd:NeighborhoodEdwards      -2.702e-01  2.474e-01  -1.092
+## YearRemodAdd:NeighborhoodGilbert      -3.171e-01  2.491e-01  -1.273
+## YearRemodAdd:NeighborhoodIDOTRR       -2.672e-01  2.474e-01  -1.080
+## YearRemodAdd:NeighborhoodMeadowV      -2.686e-01  2.474e-01  -1.086
+## YearRemodAdd:NeighborhoodMitchel      -2.772e-01  2.474e-01  -1.121
+## YearRemodAdd:NeighborhoodNAmes        -2.722e-01  2.474e-01  -1.100
+## YearRemodAdd:NeighborhoodNoRidge      -2.674e-01  2.480e-01  -1.078
+## YearRemodAdd:NeighborhoodNPkVill              NA         NA      NA
+## YearRemodAdd:NeighborhoodNridgHt      -1.981e-01  2.508e-01  -0.790
+## YearRemodAdd:NeighborhoodNWAmes       -2.714e-01  2.474e-01  -1.097
+## YearRemodAdd:NeighborhoodOldTown      -2.705e-01  2.474e-01  -1.093
+## YearRemodAdd:NeighborhoodSawyer       -2.724e-01  2.474e-01  -1.101
+## YearRemodAdd:NeighborhoodSawyerW      -2.979e-01  2.477e-01  -1.203
+## YearRemodAdd:NeighborhoodSomerst      -2.057e-01  2.495e-01  -0.825
+## YearRemodAdd:NeighborhoodStoneBr      -2.940e-01  2.607e-01  -1.128
+## YearRemodAdd:NeighborhoodSWISU        -2.721e-01  2.474e-01  -1.100
+## YearRemodAdd:NeighborhoodTimber       -2.822e-01  2.585e-01  -1.092
+## YearRemodAdd:log(TotRmsAbvGrd)         1.115e-03  2.073e-03   0.538
+## YearRemodAdd:ExterQualGd              -6.521e-04  1.285e-03  -0.507
+## YearRemodAdd:ExterQualTA                      NA         NA      NA
 ## NeighborhoodBrDale:log(TotRmsAbvGrd)   1.472e+00  1.396e+00   1.055
 ## NeighborhoodBrkSide:log(TotRmsAbvGrd)  1.453e+00  1.310e+00   1.110
 ## NeighborhoodClearCr:log(TotRmsAbvGrd)  4.456e-01  1.309e+00   0.340
@@ -1076,7 +1075,7 @@ summary(int_add_mod)</code></pre>
 ## OverallQual8                           0.46502   
 ## OverallQual9                           0.47181   
 ## I(YearBuilt)                           0.31259   
-## I(YearRemodAdd)                        0.36981   
+## YearRemodAdd                           0.36981   
 ## NeighborhoodBrDale                     0.24686   
 ## NeighborhoodBrkSide                    0.20099   
 ## NeighborhoodClearCr                    0.18341   
@@ -1110,7 +1109,7 @@ summary(int_add_mod)</code></pre>
 ## log(GrLivArea):OverallQual8            0.65204   
 ## log(GrLivArea):OverallQual9            0.96772   
 ## log(GrLivArea):I(YearBuilt)            0.86539   
-## log(GrLivArea):I(YearRemodAdd)         0.09936 . 
+## log(GrLivArea):YearRemodAdd            0.09936 . 
 ## log(GrLivArea):NeighborhoodBrDale      0.22054   
 ## log(GrLivArea):NeighborhoodBrkSide     0.30389   
 ## log(GrLivArea):NeighborhoodClearCr     0.39544   
@@ -1143,13 +1142,13 @@ summary(int_add_mod)</code></pre>
 ## OverallQual7:I(YearBuilt)              0.56086   
 ## OverallQual8:I(YearBuilt)              0.57302   
 ## OverallQual9:I(YearBuilt)              0.47353   
-## OverallQual3:I(YearRemodAdd)           0.52070   
-## OverallQual4:I(YearRemodAdd)           0.57905   
-## OverallQual5:I(YearRemodAdd)           0.59847   
-## OverallQual6:I(YearRemodAdd)           0.59808   
-## OverallQual7:I(YearRemodAdd)           0.58804   
-## OverallQual8:I(YearRemodAdd)           0.63317   
-## OverallQual9:I(YearRemodAdd)                NA   
+## OverallQual3:YearRemodAdd              0.52070   
+## OverallQual4:YearRemodAdd              0.57905   
+## OverallQual5:YearRemodAdd              0.59847   
+## OverallQual6:YearRemodAdd              0.59808   
+## OverallQual7:YearRemodAdd              0.58804   
+## OverallQual8:YearRemodAdd              0.63317   
+## OverallQual9:YearRemodAdd                   NA   
 ## OverallQual3:NeighborhoodBrDale             NA   
 ## OverallQual4:NeighborhoodBrDale             NA   
 ## OverallQual5:NeighborhoodBrDale        0.09895 . 
@@ -1325,7 +1324,7 @@ summary(int_add_mod)</code></pre>
 ## OverallQual7:ExterQualTA                    NA   
 ## OverallQual8:ExterQualTA                    NA   
 ## OverallQual9:ExterQualTA                    NA   
-## I(YearBuilt):I(YearRemodAdd)           0.10996   
+## I(YearBuilt):YearRemodAdd              0.10996   
 ## I(YearBuilt):NeighborhoodBrDale        0.25738   
 ## I(YearBuilt):NeighborhoodBrkSide       0.41735   
 ## I(YearBuilt):NeighborhoodClearCr       0.43641   
@@ -1351,31 +1350,31 @@ summary(int_add_mod)</code></pre>
 ## I(YearBuilt):log(TotRmsAbvGrd)         0.50854   
 ## I(YearBuilt):ExterQualGd               0.46327   
 ## I(YearBuilt):ExterQualTA               0.46137   
-## I(YearRemodAdd):NeighborhoodBrDale          NA   
-## I(YearRemodAdd):NeighborhoodBrkSide    0.27245   
-## I(YearRemodAdd):NeighborhoodClearCr    0.26920   
-## I(YearRemodAdd):NeighborhoodCollgCr    0.27529   
-## I(YearRemodAdd):NeighborhoodCrawfor    0.27318   
-## I(YearRemodAdd):NeighborhoodEdwards    0.27515   
-## I(YearRemodAdd):NeighborhoodGilbert    0.20337   
-## I(YearRemodAdd):NeighborhoodIDOTRR     0.28039   
-## I(YearRemodAdd):NeighborhoodMeadowV    0.27801   
-## I(YearRemodAdd):NeighborhoodMitchel    0.26282   
-## I(YearRemodAdd):NeighborhoodNAmes      0.27158   
-## I(YearRemodAdd):NeighborhoodNoRidge    0.28134   
-## I(YearRemodAdd):NeighborhoodNPkVill         NA   
-## I(YearRemodAdd):NeighborhoodNridgHt    0.42988   
-## I(YearRemodAdd):NeighborhoodNWAmes     0.27302   
-## I(YearRemodAdd):NeighborhoodOldTown    0.27461   
-## I(YearRemodAdd):NeighborhoodSawyer     0.27124   
-## I(YearRemodAdd):NeighborhoodSawyerW    0.22938   
-## I(YearRemodAdd):NeighborhoodSomerst    0.40986   
-## I(YearRemodAdd):NeighborhoodStoneBr    0.25980   
-## I(YearRemodAdd):NeighborhoodSWISU      0.27175   
-## I(YearRemodAdd):NeighborhoodTimber     0.27533   
-## I(YearRemodAdd):log(TotRmsAbvGrd)      0.59078   
-## I(YearRemodAdd):ExterQualGd            0.61199   
-## I(YearRemodAdd):ExterQualTA                 NA   
+## YearRemodAdd:NeighborhoodBrDale             NA   
+## YearRemodAdd:NeighborhoodBrkSide       0.27245   
+## YearRemodAdd:NeighborhoodClearCr       0.26920   
+## YearRemodAdd:NeighborhoodCollgCr       0.27529   
+## YearRemodAdd:NeighborhoodCrawfor       0.27318   
+## YearRemodAdd:NeighborhoodEdwards       0.27515   
+## YearRemodAdd:NeighborhoodGilbert       0.20337   
+## YearRemodAdd:NeighborhoodIDOTRR        0.28039   
+## YearRemodAdd:NeighborhoodMeadowV       0.27801   
+## YearRemodAdd:NeighborhoodMitchel       0.26282   
+## YearRemodAdd:NeighborhoodNAmes         0.27158   
+## YearRemodAdd:NeighborhoodNoRidge       0.28134   
+## YearRemodAdd:NeighborhoodNPkVill            NA   
+## YearRemodAdd:NeighborhoodNridgHt       0.42988   
+## YearRemodAdd:NeighborhoodNWAmes        0.27302   
+## YearRemodAdd:NeighborhoodOldTown       0.27461   
+## YearRemodAdd:NeighborhoodSawyer        0.27124   
+## YearRemodAdd:NeighborhoodSawyerW       0.22938   
+## YearRemodAdd:NeighborhoodSomerst       0.40986   
+## YearRemodAdd:NeighborhoodStoneBr       0.25980   
+## YearRemodAdd:NeighborhoodSWISU         0.27175   
+## YearRemodAdd:NeighborhoodTimber        0.27533   
+## YearRemodAdd:log(TotRmsAbvGrd)         0.59078   
+## YearRemodAdd:ExterQualGd               0.61199   
+## YearRemodAdd:ExterQualTA                    NA   
 ## NeighborhoodBrDale:log(TotRmsAbvGrd)   0.29194   
 ## NeighborhoodBrkSide:log(TotRmsAbvGrd)  0.26746   
 ## NeighborhoodClearCr:log(TotRmsAbvGrd)  0.73366   
