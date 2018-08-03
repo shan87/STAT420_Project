@@ -45,14 +45,14 @@ In this project we will be try to predict the final price of each home, based on
 
 ###Data Set
 
+????????
+
 #### Source
- techniques to analyze the data. Below are the details about our dataset.
-We are using house prie data available at  https://www.kaggle.com/c/house-prices-advanced-regression-techniques . We will use regression
+Below are the details about our dataset. We are using house prie data available at  https://www.kaggle.com/c/house-prices-advanced-regression-techniques . We will use regression techniques to analyze the data. 
 
 #### Background
 
 The Ames Housing dataset was compiled by Dean De Cock for use in data science education. It's an incredible alternative for data scientists looking for a modernized and expanded version of the often cited Boston Housing dataset. 
-
 
 #### File descriptions
 
@@ -66,7 +66,7 @@ List of files used in the project
 
 Here's a brief description of different fields of the house data set.
 
-- SalePrice - the property's sale price in dollars. This is the target variable that we are trying to predict.
+- SalePrice - The property's sale price in dollars. This is the target variable that we are trying to predict.
 - MSSubClass: The building class
 - MSZoning: The general zoning classification
 - LotFrontage: Linear feet of street connected to property
@@ -151,7 +151,7 @@ Here's a brief description of different fields of the house data set.
 
 ###Data Import
 
-```{r,message=FALSE,error=FALSE}
+```{r,message=FALSE,error=FALSE, warning=FALSE}
 library(lmtest)
 library(broom)
 library(formattable)
@@ -161,28 +161,26 @@ library(leaps)
 library(caret)
 ```
 
+**Importing test and train data from the files**
 
 ```{r}
-## Import test and train data from the files
-
 train = read.csv("train.csv", stringsAsFactors = FALSE) 
 test = read.csv("test.csv", stringsAsFactors = FALSE) 
-
-## Checking the number of columns and observation in test and train data
-
-dim(train)
-dim(test)
-
 ```
 
-From the dimension of test and train data, we could see that the test data has one less column than the train, as the sale price column wont be availble in test data which we will be predicting as part of this project.
+**Checking the number of columns and observation in test and train data**
+
+```{r}
+dim(train)
+dim(test)
+```
+
+From the dimension of test and train data, we could see that the test data has one less column than the train, as the sale price column would not be availble in test data and that's what we will be predicting as part of this project.
 
 ###Data Cleansing
 
 ```{r}
-
 str(train)
-
 ```
 
 From the above str display of data we could see that our data is not completely clean. First, certain variables contain NA values which could cause problems when we make predictive models later on. Second, the levels of some of the factor variables are not the same across the training set and test set.
@@ -193,25 +191,27 @@ We also can change any NA in the dataset to None while changing the factor of ch
 
 We also can change the data types of the below features from numeric to string.
 
-**Features**	
+###Features	
 
 MSSubClass, OverallCond, OverallQual, GarageCars, YrSold, MoSold
 
 The values for each feature above represent different categories and not different amounts of something. This is easiest to see in the case of MSSubClass, where the numbers encode different categories of houses, such as 2-Story 1946 and Newer (60) and 2-Story 1945 and Older (70).  It is harder to discern in a feature like GarageCars, where each value seems to count something (cars) but in actuality represents the garage capacity, and therefore represents a category.
 
+Removing the target variable SalePrice, which is not found in test data set.
+
 ```{r}
-
-# Remove the target variable not found in test set
-
 SalePrice = train$SalePrice 
 train$SalePrice = NULL
 
-# Combine data sets
+```
 
+Combining test and training data set and changing numeric to factor variable.
+
+```{r}
+# Combine data sets
 house_data = rbind(train,test)
 
 ##Change Numeric to factor
-
 house_data$MSSubClass = as.character(house_data$MSSubClass)
 house_data$OverallCond = as.character(house_data$OverallCond)
 house_data$OverallQual = as.character(house_data$OverallQual)
@@ -219,8 +219,11 @@ house_data$GarageCars = as.character(house_data$GarageCars)
 house_data$YrSold = as.character(house_data$YrSold)
 house_data$MoSold = as.character(house_data$MoSold)
 
-# Convert character columns to factor, filling NA values with "None"
+```
 
+We will now convert character columns to factor and will replace NA values with "None".
+
+```{r}
 for (col in colnames(house_data)){
   if (typeof(house_data[,col]) == "character"){
     new_col = house_data[,col]
@@ -228,19 +231,15 @@ for (col in colnames(house_data)){
     house_data[col] = as.factor(new_col)
   }
 }
-
 ```
 
-Now the factor variable should be common across test and train dataset ,lets try to find the missing values in integer variable and fix it
+Now the factor variable should be common across test and train dataset ,lets try to find the missing values in integer variable and fix it.
 
 ```{r}
-
-## Checking for missing data values in all varables
-
+## Checking for missing data values in all integer variables
 Missing_indices = sapply(house_data,function(x) sum(is.na(x)))
 Missing_Summary = data.frame(index = names(house_data),Missing_Values=Missing_indices)
 Missing_Summary[Missing_Summary$Missing_Values > 0,]
-
 ```
 
 Above are the list of variable having NA values, in the below section, we will fix those values with relavant values
@@ -248,7 +247,6 @@ Above are the list of variable having NA values, in the below section, we will f
 ```{r}
 
 ## Impute Mean
-
 house_data$MasVnrArea[which(is.na(house_data$MasVnrArea))] = mean(house_data$MasVnrArea,na.rm=T)
 
 ## Impute Median
@@ -277,19 +275,16 @@ house_data$TotalBsmtSF[which(is.na(house_data$TotalBsmtSF))] = 0
 
 ```
 
-separate the train and test data after fixing the NA values
+Below, we will separate the train and test data after fixing the NA values.
 
 ```{r}
-
 # Separate out our train and test sets
-
 train = house_data[1:nrow(train),]
 train$SalePrice = SalePrice  
 test = house_data[(nrow(train)+1):nrow(house_data),]
-
 ```
 
-Lets now have a look at the train data set
+Let's now have a look at the train data set
 
 ```{r}
 str(train)
@@ -297,7 +292,7 @@ str(train)
 
 ###Train and Test data Split
 
-We will split the data from the train file in 80 - 20 ration, we can use 20% of the data to test our fitted model
+We will split the data from the train file in 80 - 20 ration, we can use 20% of the data to test our fitted model.
 
 ```{r}
 
@@ -314,12 +309,12 @@ house_tst = train[-house_trn_idx,]
 
 Lets plot the correlation matrix to see which variable have multicollinearity.
 
-```{r fig.height=8, fig.width=13}
+```{r fig.height=8, fig.width=13, warning=FALSE}
 house_train_num<-house_trn[, sapply(house_trn, is.numeric)]
 Correlation<-cor(na.omit(house_train_num))
 library(corrplot)
 corrplot(Correlation, method = "square")
-#(col_round = round(cor(Correlation), 2))
+#(col_round = round(cor(Correlation), 2))col=colorRampPalette(c("blue","white","red"))
 
 ```
 
@@ -763,7 +758,6 @@ shapiro.test(resid(AIC_Log_cd))
  
  
 ```
-
 
 
 ## Results
