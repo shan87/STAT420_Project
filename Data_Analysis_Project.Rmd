@@ -149,7 +149,7 @@ Here's a brief description of different fields of the house data set.
 
 ## Methods
 
-###Data Import and Cleansing
+###Data Import
 
 ```{r,message=FALSE,error=FALSE}
 library(lmtest)
@@ -160,7 +160,6 @@ library(ggplot2)
 library(leaps)
 library(caret)
 ```
-
 
 
 ```{r}
@@ -178,6 +177,8 @@ dim(test)
 
 From the dimension of test and train data, we could see that the test data has one less column than the train, as the sale price column wont be availble in test data which we will be predicting as part of this project.
 
+###Data Cleansing
+
 ```{r}
 
 str(train)
@@ -192,7 +193,7 @@ We also can change any NA in the dataset to None while changing the factor of ch
 
 We also can change the data types of the below features from numeric to string.
 
-** Features **	
+**Features**	
 
 MSSubClass, OverallCond, OverallQual, GarageCars, YrSold, MoSold
 
@@ -234,7 +235,7 @@ Now the factor variable should be common across test and train dataset ,lets try
 
 ```{r}
 
-## Taking all the missing data indices in one variables
+## Checking for missing data values in all varables
 
 Missing_indices = sapply(house_data,function(x) sum(is.na(x)))
 Missing_Summary = data.frame(index = names(house_data),Missing_Values=Missing_indices)
@@ -246,13 +247,17 @@ Above are the list of variable having NA values, in the below section, we will f
 
 ```{r}
 
+## Impute Mean
+
 house_data$MasVnrArea[which(is.na(house_data$MasVnrArea))] = mean(house_data$MasVnrArea,na.rm=T)
+
+## Impute Median
 
 house_data$LotFrontage[which(is.na(house_data$LotFrontage))] = median(house_data$LotFrontage,na.rm = T)
 
-house_data$GarageYrBlt[which(is.na(house_data$GarageYrBlt))] = 0 
-
 ## Impute 0
+
+house_data$GarageYrBlt[which(is.na(house_data$GarageYrBlt))] = 0 
 
 house_data$BsmtFullBath[which(is.na(house_data$BsmtFullBath ))] = 0
 
@@ -284,15 +289,15 @@ test = house_data[(nrow(train)+1):nrow(house_data),]
 
 ```
 
-
 Lets now have a look at the train data set
 
 ```{r}
 str(train)
 ```
 
+###Train and Test data Split
 
-**Need to write comments**
+We will split the data from the train file in 80 - 20 ration, we can use 20% of the data to test our fitted model
 
 ```{r}
 
@@ -303,6 +308,12 @@ house_tst = train[-house_trn_idx,]
 
 ```
 
+### Data Exploration
+
+### Corelation Matrix
+
+Lets plot the correlation matrix to see which variable have multicollinearity.
+
 ```{r fig.height=8, fig.width=13}
 house_train_num<-house_trn[, sapply(house_trn, is.numeric)]
 Correlation<-cor(na.omit(house_train_num))
@@ -311,6 +322,8 @@ corrplot(Correlation, method = "square")
 #(col_round = round(cor(Correlation), 2))
 
 ```
+
+### Corelation with sales price
 
 Variable which has high corelation with sales price
 ```{r}
@@ -326,7 +339,11 @@ for (col in colnames(house_trn)){
 
 ```
 
-### Data Exploration
+
+We can use the variable listed above to fit our model as it has high corelation with sales price.
+
+
+
 
 ```{r fig.width=10}
 
@@ -397,17 +414,20 @@ boxplot(house_trn$SalePrice ~ house_trn[,char_var[i]], data = mpg,
 
 #Good BP and shapiro
 
-int_add_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+YearBuilt+ YearRemodAdd + Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn)
- 
-  #big_mod_cd = cooks.distance(int_add_mod)
-  
-#  int_add_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+YearBuilt + YearRemodAdd + #Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn  , subset = big_mod_cd < 4 / #length(big_mod_cd))
-  
-(RMSE_Train = sqrt(mean(resid(int_add_mod) ^ 2)))
+int_add_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+ YearBuilt+ YearRemodAdd + Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn)
 
-(RMSE_test = sqrt(mean((log(house_tst$SalePrice) - predict(int_add_mod,house_tst)) ^ 2)))
-
-  
+# big_mod_cd = cooks.distance(int_add_mod)
+# 
+#   
+# int_add_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+YearBuilt + YearRemodAdd + Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn  , subset = big_mod_cd < 4 / length(big_mod_cd))
+#   
+# (RMSE_Train = sqrt(mean(resid(int_add_mod) ^ 2)))
+# 
+# house_mod = subset(house_tst, house_tst$OverallQual != "2" & house_tst$Neighborhood !="Blueste" & house_tst$Neighborhood !="Veenker" & house_tst$ExterQual !="Fa" )
+# 
+# (RMSE_test = sqrt(mean((log(house_tst$SalePrice) - predict(int_add_mod,house_mod)) ^ 2)))
+# 
+#   
  
 #int_add_mod = lm(log(SalePrice) ~ OverallQual + YearBuilt + YearRemodAdd + TotalBsmtSF + X1stFlrSF + log(GrLivArea) + Neighborhood  + FullBath + TotRmsAbvGrd + GarageArea + Foundation  + GarageType , data = house_trn)
 
@@ -477,43 +497,6 @@ qqline(resid(BIC_model), col = "dodgerblue", lwd = 2)
 ```
 
 
-```{r,eval=FALSE}
-cors = cor(train[ , sapply(train, is.numeric)])
-high_cor = which(abs(cors) > 0.6 & (abs(cors) < 1))
-rows = rownames(cors)[((high_cor-1) %/% 38)+1]
-cols = colnames(cors)[ifelse(high_cor %% 38 == 0, 38, high_cor %% 38)]
-vals = cors[high_cor]
-
-cor_data = data.frame(cols=cols, rows=rows, correlation=vals)
-cor_data
-```
-
-
-
-## Model Building
-- step 0 : Data exploration, cleansing and check for multicollineariaty
-- step 1 : Build a additive model with all variables
-- step 2 : Use one of the search methode to find out the best model for the additive
-- step 3 : check the normal distribution and constant variance assumption
-- step 4 : Do predictor or response transformation based on the results of the test in step 3
-- step 5 : Finalize the model
-- Step 6 : Chek for train and test RMSE
-- step 7 : check for leverage and influential observation
-- step 8 : Build the model after removing the influential observations(if any) and 
-           check the RMSE values
-- step 9 : predict the results with the final model
-
-**Note** 
-  
-  - Everytime we fit the model, we need to check the normal distribution and constant variance assumption
-  
-**Steps from Video**
-
-- 
-
-Points to consider 
-
-1. Do we need to check LOOCV?
 
 
 ## Results
