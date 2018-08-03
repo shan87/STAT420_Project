@@ -1,0 +1,566 @@
+---
+title: "STAT 420: Data Analysis Project - Predict the price of your dream home" 
+author: "Anupama Agrahari, Dhanendra Singh, Naveen Kumar Palani, Shanthakumar Subramanian"
+date: ''
+output:
+  html_document: 
+    toc: yes
+  pdf_document: default
+urlcolor: cyan
+---
+
+
+
+
+## Team
+
+We are team of four. Please find below our names and Net ID in alphabetical order.
+
+```{r echo = FALSE, result = 'asis'}
+members = matrix(nrow = 4, ncol = 3)
+colnames(members) = c("FirstName", "LastName", "NetID")
+rownames(members) = c("1", "2", "3","4")
+
+members[1,1] = "Anupama"
+members[1,2] = "Agrahari"
+members[1,3] = "anupama3"
+members[2,1] = "Dhanendra"
+members[2,2] = "Singh"
+members[2,3] = "disingh2"
+members[3,1] = "Naveen Kumar"
+members[3,2] = "Palani"
+members[3,3] = "npalani3"
+members[4,1] = "Shanthakumar"
+members[4,2] = "Subramanian"
+members[4,3] = "SS81"
+knitr::kable(members)
+```
+
+## Introduction
+
+### About the Project
+This data analysis project is inspired from the House Prices: Advanced Regression Techniques competition held in Kaggle.
+
+In this project we will be try to predict the final price of each home, based on the 79 explanatory variables describing (almost) every aspect of residential homes in Ames, Iowa.
+
+###Data Set
+
+#### Source
+ techniques to analyze the data. Below are the details about our dataset.
+We are using house prie data available at  https://www.kaggle.com/c/house-prices-advanced-regression-techniques . We will use regression
+
+#### Background
+
+The Ames Housing dataset was compiled by Dean De Cock for use in data science education. It's an incredible alternative for data scientists looking for a modernized and expanded version of the often cited Boston Housing dataset. 
+
+
+#### File descriptions
+
+List of files used in the project
+
+- train.csv - the training set
+- test.csv - the test set
+- data_description.txt - full description of each column, originally prepared by Dean De Cock but lightly edited to match the column names used here
+
+#### Data fields
+
+Here's a brief description of different fields of the house data set.
+
+- SalePrice - the property's sale price in dollars. This is the target variable that we are trying to predict.
+- MSSubClass: The building class
+- MSZoning: The general zoning classification
+- LotFrontage: Linear feet of street connected to property
+- LotArea: Lot size in square feet
+- Street: Type of road access
+- Alley: Type of alley access
+- LotShape: General shape of property
+- LandContour: Flatness of the property
+- Utilities: Type of utilities available
+- LotConfig: Lot configuration
+- LandSlope: Slope of property
+- Neighborhood: Physical locations within Ames city limits
+- Condition1: Proximity to main road or railroad
+- Condition2: Proximity to main road or railroad (if a second is present)
+- BldgType: Type of dwelling
+- HouseStyle: Style of dwelling
+- OverallQual: Overall material and finish quality
+- OverallCond: Overall condition rating
+- YearBuilt: Original construction date
+- YearRemodAdd: Remodel date
+- RoofStyle: Type of roof
+- RoofMatl: Roof material
+- Exterior1st: Exterior covering on house
+- Exterior2nd: Exterior covering on house (if more than one material)
+- MasVnrType: Masonry veneer type
+- MasVnrArea: Masonry veneer area in square feet
+- ExterQual: Exterior material quality
+- ExterCond: Present condition of the material on the exterior
+- Foundation: Type of foundation
+- BsmtQual: Height of the basement
+- BsmtCond: General condition of the basement
+- BsmtExposure: Walkout or garden level basement walls
+- BsmtFinType1: Quality of basement finished area
+- BsmtFinSF1: Type 1 finished square feet
+- BsmtFinType2: Quality of second finished area (if present)
+- BsmtFinSF2: Type 2 finished square feet
+- BsmtUnfSF: Unfinished square feet of basement area
+- TotalBsmtSF: Total square feet of basement area
+- Heating: Type of heating
+- HeatingQC: Heating quality and condition
+- CentralAir: Central air conditioning
+- Electrical: Electrical system
+- 1stFlrSF: First Floor square feet
+- 2ndFlrSF: Second floor square feet
+- LowQualFinSF: Low quality finished square feet (all floors)
+- GrLivArea: Above grade (ground) living area square feet
+- BsmtFullBath: Basement full bathrooms
+- BsmtHalfBath: Basement half bathrooms
+- FullBath: Full bathrooms above grade
+- HalfBath: Half baths above grade
+- Bedroom: Number of bedrooms above basement level
+- Kitchen: Number of kitchens
+- KitchenQual: Kitchen quality
+- TotRmsAbvGrd: Total rooms above grade (does not include bathrooms)
+- Functional: Home functionality rating
+- Fireplaces: Number of fireplaces
+- FireplaceQu: Fireplace quality
+- GarageType: Garage location
+- GarageYrBlt: Year garage was built
+- GarageFinish: Interior finish of the garage
+- GarageCars: Size of garage in car capacity
+- GarageArea: Size of garage in square feet
+- GarageQual: Garage quality
+- GarageCond: Garage condition
+- PavedDrive: Paved driveway
+- WoodDeckSF: Wood deck area in square feet
+- OpenPorchSF: Open porch area in square feet
+- EnclosedPorch: Enclosed porch area in square feet
+- 3SsnPorch: Three season porch area in square feet
+- ScreenPorch: Screen porch area in square feet
+- PoolArea: Pool area in square feet
+- PoolQC: Pool quality
+- Fence: Fence quality
+- MiscFeature: Miscellaneous feature not covered in other categories
+- MiscVal: $Value of miscellaneous feature
+- MoSold: Month Sold
+- YrSold: Year Sold
+- SaleType: Type of sale
+- SaleCondition: Condition of sale
+
+## Methods
+
+###Data Import
+
+```{r,message=FALSE,error=FALSE}
+library(lmtest)
+library(broom)
+library(formattable)
+library(faraway)
+library(ggplot2)
+library(leaps)
+library(caret)
+```
+
+
+```{r}
+## Import test and train data from the files
+
+train = read.csv("train.csv", stringsAsFactors = FALSE) 
+test = read.csv("test.csv", stringsAsFactors = FALSE) 
+
+## Checking the number of columns and observation in test and train data
+
+dim(train)
+dim(test)
+
+```
+
+From the dimension of test and train data, we could see that the test data has one less column than the train, as the sale price column wont be availble in test data which we will be predicting as part of this project.
+
+###Data Cleansing
+
+```{r}
+
+str(train)
+
+```
+
+From the above str display of data we could see that our data is not completely clean. First, certain variables contain NA values which could cause problems when we make predictive models later on. Second, the levels of some of the factor variables are not the same across the training set and test set.
+
+We also see that some of the factor variables have different levels in train and test data set, which might cause problem in predicting the model.We can make sure the train and test sets have the same factor levels by loading each data set again without converting strings to factors, combining them into one large data set, converting strings to factors for the combined data set and then separating them. 
+
+We also can change any NA in the dataset to None while changing the factor of character columns
+
+We also can change the data types of the below features from numeric to string.
+
+**Features**	
+
+MSSubClass, OverallCond, OverallQual, GarageCars, YrSold, MoSold
+
+The values for each feature above represent different categories and not different amounts of something. This is easiest to see in the case of MSSubClass, where the numbers encode different categories of houses, such as 2-Story 1946 and Newer (60) and 2-Story 1945 and Older (70).  It is harder to discern in a feature like GarageCars, where each value seems to count something (cars) but in actuality represents the garage capacity, and therefore represents a category.
+
+```{r}
+
+# Remove the target variable not found in test set
+
+SalePrice = train$SalePrice 
+train$SalePrice = NULL
+
+# Combine data sets
+
+house_data = rbind(train,test)
+
+##Change Numeric to factor
+
+house_data$MSSubClass = as.character(house_data$MSSubClass)
+house_data$OverallCond = as.character(house_data$OverallCond)
+house_data$OverallQual = as.character(house_data$OverallQual)
+house_data$GarageCars = as.character(house_data$GarageCars)
+house_data$YrSold = as.character(house_data$YrSold)
+house_data$MoSold = as.character(house_data$MoSold)
+
+# Convert character columns to factor, filling NA values with "None"
+
+for (col in colnames(house_data)){
+  if (typeof(house_data[,col]) == "character"){
+    new_col = house_data[,col]
+    new_col[is.na(new_col)] = "None"
+    house_data[col] = as.factor(new_col)
+  }
+}
+
+```
+
+Now the factor variable should be common across test and train dataset ,lets try to find the missing values in integer variable and fix it
+
+```{r}
+
+## Checking for missing data values in all varables
+
+Missing_indices = sapply(house_data,function(x) sum(is.na(x)))
+Missing_Summary = data.frame(index = names(house_data),Missing_Values=Missing_indices)
+Missing_Summary[Missing_Summary$Missing_Values > 0,]
+
+```
+
+Above are the list of variable having NA values, in the below section, we will fix those values with relavant values
+
+```{r}
+
+## Impute Mean
+
+house_data$MasVnrArea[which(is.na(house_data$MasVnrArea))] = mean(house_data$MasVnrArea,na.rm=T)
+
+## Impute Median
+
+house_data$LotFrontage[which(is.na(house_data$LotFrontage))] = median(house_data$LotFrontage,na.rm = T)
+
+## Impute 0
+
+house_data$GarageYrBlt[which(is.na(house_data$GarageYrBlt))] = 0 
+
+house_data$BsmtFullBath[which(is.na(house_data$BsmtFullBath ))] = 0
+
+house_data$BsmtHalfBath[which(is.na(house_data$BsmtHalfBath ))] = 0
+
+house_data$BsmtUnfSF[which(is.na(house_data$BsmtUnfSF))] = 0
+
+house_data$BsmtFinSF1[which(is.na(house_data$BsmtFinSF1))] = 0
+
+house_data$BsmtFinSF2[which(is.na(house_data$BsmtFinSF2))] = 0
+
+house_data$GarageArea[which(is.na(house_data$GarageArea))] = 0
+
+house_data$GarageCars[which(is.na(house_data$GarageCars))] = 0
+
+house_data$TotalBsmtSF[which(is.na(house_data$TotalBsmtSF))] = 0
+
+```
+
+separate the train and test data after fixing the NA values
+
+```{r}
+
+# Separate out our train and test sets
+
+train = house_data[1:nrow(train),]
+train$SalePrice = SalePrice  
+test = house_data[(nrow(train)+1):nrow(house_data),]
+
+```
+
+Lets now have a look at the train data set
+
+```{r}
+str(train)
+```
+
+###Train and Test data Split
+
+We will split the data from the train file in 80 - 20 ration, we can use 20% of the data to test our fitted model
+
+```{r}
+
+set.seed(1)
+house_trn_idx = sample(1:nrow(train), 1168)
+house_trn = train[house_trn_idx,]
+house_tst = train[-house_trn_idx,]
+
+```
+
+### Data Exploration
+
+### Corelation Matrix
+
+Lets plot the correlation matrix to see which variable have multicollinearity.
+
+```{r fig.height=8, fig.width=13}
+house_train_num<-house_trn[, sapply(house_trn, is.numeric)]
+Correlation<-cor(na.omit(house_train_num))
+library(corrplot)
+corrplot(Correlation, method = "square")
+#(col_round = round(cor(Correlation), 2))
+
+```
+
+### Corelation with sales price
+
+Variable which has high corelation with sales price
+```{r}
+
+for (col in colnames(house_trn)){
+   if(is.numeric(house_trn[,col])){
+       if( abs(cor(house_trn[,col],house_trn$SalePrice)) > 0.5){
+           print(col)
+           print( cor(house_trn[,col],house_trn$SalePrice))
+         }
+   }
+}
+
+```
+
+
+We can use the variable listed above to fit our model as it has high corelation with sales price.
+
+
+
+
+```{r fig.width=10}
+
+par(mfrow = c(1,2))
+
+hist(house_trn$SalePrice,
+    xlab   = "Sale Price without log(SalePrice)",
+    main   = "Histogram of sales price",
+    border = "orange",
+
+    breaks = 20)
+
+hist(log(house_trn$SalePrice),
+    xlab   = "Sale Price with log(SalePrice)",
+    main   = "Histogram of sales price",
+    border = "orange",
+  
+    breaks = 20)
+
+qqnorm(house_trn$SalePrice, main = "Normal Q-Q Plot, without log(SalePrice)", col = "darkgrey")
+qqline(house_trn$SalePrice, col = "dodgerblue", lwd = 2)
+
+qqnorm(log(house_trn$SalePrice), main = "Normal Q-Q Plot, with log(SalePrice) ", col = "darkgrey")
+qqline(log(house_trn$SalePrice), col = "dodgerblue", lwd = 2)
+
+```
+
+
+```{r fig.height=3, fig.width=10}
+
+var_sel = c("YearBuilt", "YearRemodAdd","TotalBsmtSF", "X1stFlrSF","GrLivArea", "FullBath", "TotRmsAbvGrd", "GarageArea")
+
+par(mfrow = c(1,3))
+for(i in 1:length(var_sel))
+hist(house_trn[,var_sel[i]],
+    xlab   = paste(toString(var_sel[i])),
+    main   = paste("Histogram of ",toString(var_sel[i])),
+    border = "Orange",
+    breaks = 20)
+
+
+
+```
+
+
+```{r fig.height=5, fig.width=15}
+
+char_var = as.array(names(house_trn[, sapply(house_trn, class) == 'factor']))
+
+par(mfrow = c(1,2))
+for(i in 1:length(char_var))
+boxplot(house_trn$SalePrice ~ house_trn[,char_var[i]], data = mpg,
+     xlab   = paste(toString(char_var[i])),
+     ylab   = "Sales price",
+     main   = paste("saleprice vs", toString(char_var[i])),
+     pch    = 20,
+     cex    = 2,
+     las=1,
+     outlier.size=10,
+     col    = "blue",
+     border = "black")
+
+```
+
+
+```{r}
+add_mod_1st = lm(log(SalePrice) ~  (MSSubClass + MSZoning  +GrLivArea + TotalBsmtSF + OverallQual+ YearBuilt+ FullBath + YearRemodAdd + Neighborhood +TotRmsAbvGrd+ExterQual +GarageArea), data = house_trn)
+
+summary(add_mod_1st)
+
+```
+
+```{r}
+bptest(add_mod_1st)
+shapiro.test(resid(add_mod_1st))
+
+```
+
+```{r}
+int_mod_1st = lm(log(SalePrice) ~  (MSSubClass + MSZoning + log(GrLivArea) + TotalBsmtSF + OverallQual+ OverallCond  + YearBuilt+  FullBath + 
+YearRemodAdd + YearBuilt:YearRemodAdd + OverallCond:YearBuilt + Neighborhood + TotRmsAbvGrd + ExterQual + (GarageArea)), data = house_trn)
+
+summary(int_mod_1st)
+
+```
+
+
+```{r}
+bptest(int_mod_1st)
+shapiro.test(resid(int_mod_1st))
+```
+
+
+```{r}
+n = resid(int_mod_1st)
+BIC_model_1st = step (int_mod_1st,k=log(nrow(house_trn)),trace=0)
+
+summary(BIC_model_1st)
+```
+
+
+```{r}
+bptest(BIC_model_1st)
+shapiro.test(resid(BIC_model_1st))
+```
+
+
+```{r,warning=FALSE}
+
+#Good BP and shapiro
+
+int_add_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+ YearBuilt+ YearRemodAdd + Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn)
+
+# big_mod_cd = cooks.distance(int_add_mod)
+# 
+#   
+# int_add_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+YearBuilt + YearRemodAdd + Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn  , subset = big_mod_cd < 4 / length(big_mod_cd))
+#   
+# (RMSE_Train = sqrt(mean(resid(int_add_mod) ^ 2)))
+# 
+# house_mod = subset(house_tst, house_tst$OverallQual != "2" & house_tst$Neighborhood !="Blueste" & house_tst$Neighborhood !="Veenker" & house_tst$ExterQual !="Fa" )
+# 
+# (RMSE_test = sqrt(mean((log(house_tst$SalePrice) - predict(int_add_mod,house_mod)) ^ 2)))
+# 
+#   
+ 
+#int_add_mod = lm(log(SalePrice) ~ OverallQual + YearBuilt + YearRemodAdd + TotalBsmtSF + X1stFlrSF + log(GrLivArea) + Neighborhood  + FullBath + TotRmsAbvGrd + GarageArea + Foundation  + GarageType , data = house_trn)
+
+summary(int_add_mod)
+
+par(mfrow = c(1, 2))
+plot(fitted(int_add_mod), resid(int_add_mod), col = "grey", pch = 20,
+    xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
+abline(h = 0, col = "darkorange", lwd = 2)
+
+qqnorm(resid(int_add_mod), main = "Normal Q-Q Plot", col = "darkgrey")
+qqline(resid(int_add_mod), col = "dodgerblue", lwd = 2)
+
+library(lmtest)
+bptest(int_add_mod)
+shapiro.test(resid(int_add_mod))
+
+```
+
+```{r}
+par(mfrow = c(1, 2))
+plot(fitted(int_add_mod), resid(int_add_mod), col = "grey", pch = 20,
+    xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
+abline(h = 0, col = "darkorange", lwd = 2)
+
+qqnorm(resid(int_add_mod), main = "Normal Q-Q Plot", col = "darkgrey")
+qqline(resid(int_add_mod), col = "dodgerblue", lwd = 2)
+
+```
+
+
+```{r}
+library(lmtest)
+bptest(int_add_mod)
+shapiro.test(resid(int_add_mod))
+```
+
+
+```{r}
+
+```
+
+
+```{r,eval=FALSE}
+
+interation_model = lm(log(SalePrice) ~ (OverallQual + YearBuilt + YearRemodAdd + TotalBsmtSF + X1stFlrSF + log(GrLivArea) + Neighborhood  + FullBath + TotRmsAbvGrd + GarageArea  )^2, data = house_trn)
+
+#+ MSSubClass +  Foundation  + GarageType
+BIC_model = step (interation_model,k=log(nrow(house_trn)),trace=0)
+
+summary(BIC_model)
+
+
+```
+
+```{r,eval=FALSE}
+library(lmtest)
+bptest(BIC_model)
+shapiro.test(resid(BIC_model))
+```
+
+
+```{r,eval=FALSE}
+par(mfrow = c(1, 2))
+plot(fitted(BIC_model), col = "grey", pch = 20,
+    xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
+abline(h = 0, col = "darkorange", lwd = 2)
+
+qqnorm(resid(BIC_model),main ="Normal Q-Q Plot", col = "darkgrey")
+qqline(resid(BIC_model), col = "dodgerblue", lwd = 2)
+
+```
+
+
+```{r}
+models = c("Model_1", "Model_2", "Model_3", "Model_4")
+pval_results = data.frame(pval_models, pval_fit1, pval_fit2)
+colnames(pval_results) = c("Train_RMSE", "Test_RMSE", "R_Squared")
+knitr::kable(models)
+```
+
+## Results
+## Discussion
+## Appendix
+
+
+
+
+
+
+
+
+
+
+
