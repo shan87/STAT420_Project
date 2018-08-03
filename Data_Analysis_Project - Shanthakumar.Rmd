@@ -343,7 +343,7 @@ for (col in colnames(house_trn)){
 We can use the variable listed above to fit our model as it has high corelation with sales price.
 
 
-
+###Distribtion of Sales Price
 
 ```{r fig.width=10}
 
@@ -371,6 +371,11 @@ qqline(log(house_trn$SalePrice), col = "dodgerblue", lwd = 2)
 
 ```
 
+From the above plot we could see that the sales price data is  right skewed so we can apply log transformation for sales price.
+
+After applying log transformation, we could see that the sales price is normally distributed.
+
+### Distribution of numeric varibles
 
 ```{r fig.height=3, fig.width=10}
 
@@ -388,6 +393,7 @@ hist(house_trn[,var_sel[i]],
 
 ```
 
+### Sales Price Vs Factor Variable
 
 ```{r fig.height=5, fig.width=15}
 
@@ -408,95 +414,171 @@ boxplot(house_trn$SalePrice ~ house_trn[,char_var[i]], data = mpg,
 
 ```
 
+## Model Building
+
+### Additive Model
+
+```{r}
+
+add_mod = lm(log(SalePrice) ~  (MSSubClass + MSZoning  +GrLivArea + TotalBsmtSF + OverallQual+ YearBuilt+ FullBath + YearRemodAdd + Neighborhood +TotRmsAbvGrd+ExterQual +GarageArea), data = house_trn)
+
+summary(add_mod)
+
+```
+
+**R2**
+
+```{r}
+
+summary(add_mod)$r.squared
+
+```
+
+**Q-Q and Fitted vs Residual Plot**
+
+```{r}
+
+par(mfrow = c(1, 2))
+plot(fitted(add_mod), resid(add_mod), col = "grey", pch = 20,
+    xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
+abline(h = 0, col = "darkorange", lwd = 2)
+
+qqnorm(resid(add_mod), main = "Normal Q-Q Plot", col = "darkgrey")
+qqline(resid(add_mod), col = "dodgerblue", lwd = 2)
+
+```
+
+**BP and Shapiro Test **
+
+```{r}
+
+bptest(add_mod)
+shapiro.test(resid(add_mod))
+
+```
+
+**Test and Train RMSE**
+
+```{r,warning=FALSE}
+
+ (RMSE_Train_add = sqrt(mean(resid(add_mod) ^ 2)))
+ 
+ (RMSE_test_add = sqrt(mean((log(house_tst$SalePrice) - predict(add_mod,house_tst)) ^ 2)))
+
+```
+
+### Log Interaction Model
+
+```{r,warning=FALSE}
+
+log_int_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+ YearBuilt+ YearRemodAdd + Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn)
+
+```
+
+
+**R2**
+
+```{r}
+
+summary(log_int_mod)$r.squared
+
+```
+
+
+
+**Q-Q and Fitted vs Residual Plot**
+
+```{r}
+
+par(mfrow = c(1, 2))
+plot(fitted(log_int_mod), resid(log_int_mod), col = "grey", pch = 20,
+    xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
+abline(h = 0, col = "darkorange", lwd = 2)
+
+qqnorm(resid(log_int_mod), main = "Normal Q-Q Plot", col = "darkgrey")
+qqline(resid(log_int_mod), col = "dodgerblue", lwd = 2)
+
+```
+
+**BP and Shapiro Test **
+
+```{r}
+
+bptest(log_int_mod)
+shapiro.test(resid(log_int_mod))
+
+```
+
+**Test and Train RMSE**
+
+```{r,warning=FALSE}
+
+ (RMSE_Train_log_int = sqrt(mean(resid(log_int_mod) ^ 2)))
+ 
+ (RMSE_test_log_int = sqrt(mean((log(house_tst$SalePrice) - predict(log_int_mod,house_tst)) ^ 2)))
+
+```
+
+### Log Interation Model without Influential data
 
 
 ```{r,warning=FALSE}
 
-#Good BP and shapiro
+log_int_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+ YearBuilt+ YearRemodAdd + Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn)
 
-int_add_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+ YearBuilt+ YearRemodAdd + Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn)
-
-# big_mod_cd = cooks.distance(int_add_mod)
-# 
-#   
-# int_add_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+YearBuilt + YearRemodAdd + Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn  , subset = big_mod_cd < 4 / length(big_mod_cd))
-#   
-# (RMSE_Train = sqrt(mean(resid(int_add_mod) ^ 2)))
-# 
-# house_mod = subset(house_tst, house_tst$OverallQual != "2" & house_tst$Neighborhood !="Blueste" & house_tst$Neighborhood !="Veenker" & house_tst$ExterQual !="Fa" )
-# 
-# (RMSE_test = sqrt(mean((log(house_tst$SalePrice) - predict(int_add_mod,house_mod)) ^ 2)))
-# 
-#   
+log_int_mod_cd = cooks.distance(log_int_mod)
  
-#int_add_mod = lm(log(SalePrice) ~ OverallQual + YearBuilt + YearRemodAdd + TotalBsmtSF + X1stFlrSF + log(GrLivArea) + Neighborhood  + FullBath + TotRmsAbvGrd + GarageArea + Foundation  + GarageType , data = house_trn)
-
-summary(int_add_mod)
-
-par(mfrow = c(1, 2))
-plot(fitted(int_add_mod), resid(int_add_mod), col = "grey", pch = 20,
-    xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
-abline(h = 0, col = "darkorange", lwd = 2)
-
-qqnorm(resid(int_add_mod), main = "Normal Q-Q Plot", col = "darkgrey")
-qqline(resid(int_add_mod), col = "dodgerblue", lwd = 2)
-
-library(lmtest)
-bptest(int_add_mod)
-shapiro.test(resid(int_add_mod))
-
+   
+ int_add_cd_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+YearBuilt + YearRemodAdd + Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn  , subset = log_int_mod_cd < 4 / length(log_int_mod_cd))
+ 
 ```
+
+**R2**
 
 ```{r}
-par(mfrow = c(1, 2))
-plot(fitted(int_add_mod), resid(int_add_mod), col = "grey", pch = 20,
-    xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
-abline(h = 0, col = "darkorange", lwd = 2)
 
-qqnorm(resid(int_add_mod), main = "Normal Q-Q Plot", col = "darkgrey")
-qqline(resid(int_add_mod), col = "dodgerblue", lwd = 2)
+summary(int_add_cd_mod)$r.squared
 
 ```
 
+
+**Q-Q and Fitted vs Residual Plot** 
+ 
+ 
+```{r}
+ 
+ par(mfrow = c(1, 2))
+plot(fitted(int_add_cd_mod), resid(int_add_cd_mod), col = "grey", pch = 20,
+    xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
+abline(h = 0, col = "darkorange", lwd = 2)
+
+qqnorm(resid(int_add_cd_mod), main = "Normal Q-Q Plot", col = "darkgrey")
+qqline(resid(int_add_cd_mod), col = "dodgerblue", lwd = 2)
+
+```
+
+
+**BP and Shapiro Test **
 
 ```{r}
-library(lmtest)
-bptest(int_add_mod)
-shapiro.test(resid(int_add_mod))
-```
 
-
-```{r,eval=FALSE}
-
-interation_model = lm(log(SalePrice) ~ (OverallQual + YearBuilt + YearRemodAdd + TotalBsmtSF + X1stFlrSF + log(GrLivArea) + Neighborhood  + FullBath + TotRmsAbvGrd + GarageArea  )^2, data = house_trn)
-
-#+ MSSubClass +  Foundation  + GarageType
-BIC_model = step (interation_model,k=log(nrow(house_trn)),trace=0)
-
-summary(BIC_model)
-
+bptest(int_add_cd_mod)
+shapiro.test(resid(int_add_cd_mod))
 
 ```
 
-```{r,eval=FALSE}
-library(lmtest)
-bptest(BIC_model)
-shapiro.test(resid(BIC_model))
+**Test and Train RMSE**
+
+```{r,warning=FALSE}
+   
+(RMSE_Train_log_cd = sqrt(mean(resid(int_add_cd_mod) ^ 2)))
+ 
+ house_mod = subset(house_tst, house_tst$OverallQual != "2" & house_tst$Neighborhood !="Blueste" & house_tst$Neighborhood !="Veenker" & house_tst$ExterQual !="Fa" )
+ 
+(RMSE_test_log_cd = sqrt(mean((log(house_tst$SalePrice) - predict(int_add_cd_mod,house_mod)) ^ 2)))
+ 
+ 
 ```
-
-
-```{r,eval=FALSE}
-par(mfrow = c(1, 2))
-plot(fitted(BIC_model), col = "grey", pch = 20,
-    xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
-abline(h = 0, col = "darkorange", lwd = 2)
-
-qqnorm(resid(BIC_model),main ="Normal Q-Q Plot", col = "darkgrey")
-qqline(resid(BIC_model), col = "dodgerblue", lwd = 2)
-
-```
-
-
 
 
 ## Results
