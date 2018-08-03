@@ -416,17 +416,19 @@ boxplot(house_trn$SalePrice ~ house_trn[,char_var[i]], data = mpg,
 
 ## Model Building
 
+Based on the
+
 ### Additive Model
 
 ```{r}
 
-add_mod = lm(log(SalePrice) ~  (MSSubClass + MSZoning  +GrLivArea + TotalBsmtSF + OverallQual+ YearBuilt+ FullBath + YearRemodAdd + Neighborhood +TotRmsAbvGrd+ExterQual +GarageArea), data = house_trn)
+add_mod = lm(log(SalePrice) ~  (MSSubClass +GrLivArea + TotalBsmtSF + OverallQual+ YearBuilt+ FullBath + YearRemodAdd + Neighborhood +TotRmsAbvGrd+ExterQual), data = house_trn)
 
 summary(add_mod)
 
 ```
 
-**R2**
+**R-Squared**
 
 ```{r}
 
@@ -467,6 +469,57 @@ shapiro.test(resid(add_mod))
 
 ```
 
+### Additive Model 2
+
+```{r}
+
+add_mod2 = lm(log(SalePrice) ~  (GrLivArea + TotalBsmtSF + OverallQual+ YearBuilt+ YearRemodAdd + Neighborhood +TotRmsAbvGrd+ExterQual), data = house_trn)
+
+summary(add_mod2)
+
+```
+
+**R-Squared**
+
+```{r}
+
+summary(add_mod2)$r.squared
+
+```
+
+**Q-Q and Fitted vs Residual Plot**
+
+```{r}
+
+par(mfrow = c(1, 2))
+plot(fitted(add_mod2), resid(add_mod2), col = "grey", pch = 20,
+    xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
+abline(h = 0, col = "darkorange", lwd = 2)
+
+qqnorm(resid(add_mod2), main = "Normal Q-Q Plot", col = "darkgrey")
+qqline(resid(add_mod2), col = "dodgerblue", lwd = 2)
+
+```
+
+**BP and Shapiro Test **
+
+```{r}
+
+bptest(add_mod2)
+shapiro.test(resid(add_mod2))
+
+```
+
+**Test and Train RMSE**
+
+```{r,warning=FALSE}
+
+ (RMSE_Train_add = sqrt(mean(resid(add_mod2) ^ 2)))
+ 
+ (RMSE_test_add = sqrt(mean((log(house_tst$SalePrice) - predict(add_mod2,house_tst)) ^ 2)))
+
+```
+
 ### Log Interaction Model
 
 ```{r,warning=FALSE}
@@ -476,7 +529,7 @@ log_int_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+ YearBuilt+ YearR
 ```
 
 
-**R2**
+**R-Squared**
 
 ```{r}
 
@@ -533,7 +586,7 @@ log_int_mod_cd = cooks.distance(log_int_mod)
  
 ```
 
-**R2**
+**R-Squared**
 
 ```{r}
 
@@ -579,6 +632,129 @@ shapiro.test(resid(int_add_cd_mod))
  
  
 ```
+
+
+### BIC of Log Interation Model without Influential data
+
+
+```{r,warning=FALSE}
+
+n = length(resid(int_add_cd_mod))
+
+
+ BIC_Log_cd = step(int_add_cd_mod,k=log(n),trace=0)
+ 
+ summary(BIC_Log_cd)
+ 
+```
+
+**R-Squared**
+
+```{r}
+
+summary(BIC_Log_cd)$r.squared
+
+```
+
+
+**Q-Q and Fitted vs Residual Plot** 
+ 
+ 
+```{r}
+ 
+ par(mfrow = c(1, 2))
+plot(fitted(BIC_Log_cd), resid(BIC_Log_cd), col = "grey", pch = 20,
+    xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
+abline(h = 0, col = "darkorange", lwd = 2)
+
+qqnorm(resid(BIC_Log_cd), main = "Normal Q-Q Plot", col = "darkgrey")
+qqline(resid(BIC_Log_cd), col = "dodgerblue", lwd = 2)
+
+```
+
+
+**BP and Shapiro Test **
+
+```{r}
+
+bptest(BIC_Log_cd)
+shapiro.test(resid(BIC_Log_cd))
+
+```
+
+**Test and Train RMSE**
+
+```{r,warning=FALSE}
+   
+(RMSE_Train_BIC_log_cd = sqrt(mean(resid(BIC_Log_cd) ^ 2)))
+ 
+ house_mod = subset(house_tst, house_tst$OverallQual != "2" & house_tst$Neighborhood !="Blueste" & house_tst$Neighborhood !="Veenker" & house_tst$ExterQual !="Fa" )
+ 
+(RMSE_test_BIC_log_cd = sqrt(mean((log(house_tst$SalePrice) - predict(BIC_Log_cd,house_mod)) ^ 2)))
+ 
+ 
+```
+
+### AIC of Log Interation Model without Influential data
+
+```{r,warning=FALSE}
+
+n = length(resid(int_add_cd_mod))
+
+
+ AIC_Log_cd = step(int_add_cd_mod,trace=0)
+ 
+ summary(AIC_Log_cd)
+ 
+```
+
+**R-Squared**
+
+```{r}
+
+summary(AIC_Log_cd)$r.squared
+
+```
+
+
+**Q-Q and Fitted vs Residual Plot** 
+ 
+ 
+```{r}
+ 
+ par(mfrow = c(1, 2))
+plot(fitted(AIC_Log_cd), resid(AIC_Log_cd), col = "grey", pch = 20,
+    xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
+abline(h = 0, col = "darkorange", lwd = 2)
+
+qqnorm(resid(AIC_Log_cd), main = "Normal Q-Q Plot", col = "darkgrey")
+qqline(resid(AIC_Log_cd), col = "dodgerblue", lwd = 2)
+
+```
+
+
+**BP and Shapiro Test **
+
+```{r}
+
+bptest(AIC_Log_cd)
+shapiro.test(resid(AIC_Log_cd))
+
+```
+
+**Test and Train RMSE**
+
+```{r,warning=FALSE}
+   
+(RMSE_Train_AIC_log_cd = sqrt(mean(resid(AIC_Log_cd) ^ 2)))
+ 
+ house_mod = subset(house_tst, house_tst$OverallQual != "2" & house_tst$Neighborhood !="Blueste" & house_tst$Neighborhood !="Veenker" & house_tst$ExterQual !="Fa" )
+ 
+(RMSE_test_AIC_log_cd = sqrt(mean((log(house_tst$SalePrice) - predict(AIC_Log_cd,house_mod)) ^ 2)))
+ 
+ 
+```
+
 
 
 ## Results
