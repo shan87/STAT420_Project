@@ -562,7 +562,7 @@ shapiro.test(resid(add_mod))
 
 ```
 
-**Test results for Additive model**
+**Discussion on test results for Additive model**
 
 The above additive model have the following test results
 
@@ -628,7 +628,7 @@ shapiro.test(resid(add_mod2))
 
 ```
 
-**Test results for Additive model-2**
+**Discussion on test results for Additive model-2**
 
 The above additive model have the following test results
 
@@ -712,7 +712,7 @@ shapiro.test(resid(log_int_mod))
 
 ```
 
-**Test results for Log interaction model**
+**Discussion on test results for Log interaction Model**
 
 The above log interaction model have the following test results
 
@@ -796,7 +796,7 @@ shapiro.test(resid(int_add_cd_mod))
  
 ```
 
-**Test results for Log interaction model with influential points removed**
+**Discussion on test results - Log interaction model with influential points removed**
 
 The above log interaction model without influential points have the following test results
 
@@ -873,7 +873,7 @@ shapiro.test(resid(BIC_Log_cd))
 ```
 
 
-**Test results for the models built using BIC search**
+**Discussion on test results for BIC search Model**
 
 The above model built using BIC have the following test results
 
@@ -954,7 +954,7 @@ shapiro.test(resid(AIC_Log_cd))
  
 ```
 
-**Test results for the models built using AIC search**
+**Discussion on test results for AIC search Model**
 
 The above model built using AIC have the following test results
 
@@ -972,12 +972,29 @@ Also, this model has better $R^2$ value and this model has `r length(coef(AIC_Lo
 
 ## Results
 
+Based on the discussion points about $R^2$, RMSE and model assumption discussed in each model section and from the table below we could see that, the model built using the AIC search with log interaction model(AIC_Log_cd) is comparitively the good model for predicting the house SalePrice as it has the best $R^2$ of the 6 models built above and it has comparitively good test RMSE.
 
-From the above table we could see that, comparitively the model built using the AIC search with log interaction model is the good model for predicting the house SalePrice as it has the best $R^2$ of the 6 models built above and it has comparitively good test RMSE.
+```{r,echo=FALSE}
 
-Usually if we are building 
+R2_val = c(r2_add, r2_add2, r2_int, r2_cd, r2_bic, r2_aic)
+rmse_train = c(RMSE_Train_add, RMSE_Train_add2, RMSE_Train_log_int, RMSE_Train_log_cd, RMSE_Train_BIC_log_cd, RMSE_Train_AIC_log_cd)
+rmse_test = c(RMSE_test_add, RMSE_test_add2, RMSE_test_log_int, RMSE_test_log_cd, RMSE_test_BIC_log_cd, RMSE_test_AIC_log_cd)
+
+models = c("add_mod", "add_mod2", "log_int_mod", "int_add_cd_mod", "BIC_Log_cd", "AIC_Log_cd")
+results = data.frame(models, R2_val, rmse_train, rmse_test)
+colnames(results) = c("Models", "R2 Values", "Train RMSE", "Test RMSE")
+knitr::kable(results)
+
+```
+
+It may be hard to use the AIC_Log_cd model for interpretation, as it has large number of parameters.
+
+Usually if we are building a models for prediction purpose we can select the model based on the $R^2$ and RMSE values alone as the model will be good for prediction and we shouldn't be concerned about the number of parameter.
 
 ## Discussion
+
+
+
 
 
 

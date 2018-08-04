@@ -801,7 +801,7 @@ qqline(resid(add_mod), col = &quot;dodgerblue&quot;, lwd = 2)</code></pre>
 <pre><code>## [1] 0.1466346</code></pre>
 <pre class="r"><code> (RMSE_test_add = sqrt(mean((log(house_tst$SalePrice) - predict(add_mod,house_tst)) ^ 2)))</code></pre>
 <pre><code>## [1] 0.1674523</code></pre>
-<p><strong>Test results for Additive model</strong></p>
+<p><strong>Discussion on test results for Additive model</strong></p>
 <p>The above additive model have the following test results</p>
 <ul>
 <li><p><span class="math inline">\(R^2\)</span> value of 0.8659, ie 86.59% of the variance in SalePrice is explained by linear relationship with variables in the <code>additive model</code>.</p></li>
@@ -845,7 +845,7 @@ qqline(resid(add_mod2), col = &quot;dodgerblue&quot;, lwd = 2)</code></pre>
 <pre><code>## [1] 0.1519549</code></pre>
 <pre class="r"><code> (RMSE_test_add2 = sqrt(mean((log(house_tst$SalePrice) - predict(add_mod2,house_tst)) ^ 2)))</code></pre>
 <pre><code>## [1] 0.1739923</code></pre>
-<p><strong>Test results for Additive model-2</strong></p>
+<p><strong>Discussion on test results for Additive model-2</strong></p>
 <p>The above additive model have the following test results</p>
 <ul>
 <li><p><span class="math inline">\(R^2\)</span> value of 0.856, ie 85.60% of the variance in SalePrice is explained by linear relationship with variables in the <code>additive model</code>.</p></li>
@@ -908,7 +908,7 @@ qqline(resid(log_int_mod), col = &quot;dodgerblue&quot;, lwd = 2)</code></pre>
 <pre><code>## [1] 0.1175327</code></pre>
 <pre class="r"><code> (RMSE_test_log_int = sqrt(mean((log(house_tst$SalePrice) - predict(log_int_mod,house_tst)) ^ 2)))</code></pre>
 <pre><code>## [1] 0.3491662</code></pre>
-<p><strong>Test results for Log interaction model</strong></p>
+<p><strong>Discussion on test results for Log interaction Model</strong></p>
 <p>The above log interaction model have the following test results</p>
 <ul>
 <li><p><span class="math inline">\(R^2\)</span> value of 0.9139, ie 91.39% of the variance in SalePrice is explained by linear relationship with variables in the <code>additive model</code>.</p></li>
@@ -965,7 +965,7 @@ qqline(resid(int_add_cd_mod), col = &quot;dodgerblue&quot;, lwd = 2)</code></pre
  
 (RMSE_test_log_cd = sqrt(mean((log(house_tst$SalePrice) - predict(int_add_cd_mod,house_mod)) ^ 2)))</code></pre>
 <pre><code>## [1] 1.336055</code></pre>
-<p><strong>Test results for Log interaction model with influential points removed</strong></p>
+<p><strong>Discussion on test results - Log interaction model with influential points removed</strong></p>
 <p>The above log interaction model without influential points have the following test results</p>
 <ul>
 <li><p><span class="math inline">\(R^2\)</span> value of 0.9295, ie 92.95% of the variance in SalePrice is explained by linear relationship with variables in the <code>additive model</code>.</p></li>
@@ -1014,7 +1014,7 @@ qqline(resid(BIC_Log_cd), col = &quot;dodgerblue&quot;, lwd = 2)</code></pre>
  
 (RMSE_test_BIC_log_cd = sqrt(mean((log(house_tst$SalePrice) - predict(BIC_Log_cd,house_mod)) ^ 2)))</code></pre>
 <pre><code>## [1] 0.4877508</code></pre>
-<p><strong>Test results for the models built using BIC search</strong></p>
+<p><strong>Discussion on test results for BIC search Model</strong></p>
 <p>The above model built using BIC have the following test results</p>
 <ul>
 <li><p><span class="math inline">\(R^2\)</span> value of 0.8883, ie 88.83% of the variance in SalePrice is explained by linear relationship with variables in the <code>BIC model</code>.</p></li>
@@ -1069,7 +1069,7 @@ qqline(resid(AIC_Log_cd), col = &quot;dodgerblue&quot;, lwd = 2)</code></pre>
  
 (RMSE_test_AIC_log_cd = sqrt(mean((log(house_tst$SalePrice) - predict(AIC_Log_cd,house_mod)) ^ 2)))</code></pre>
 <pre><code>## [1] 0.4985559</code></pre>
-<p><strong>Test results for the models built using AIC search</strong></p>
+<p><strong>Discussion on test results for AIC search Model</strong></p>
 <p>The above model built using AIC have the following test results</p>
 <ul>
 <li><p><span class="math inline">\(R^2\)</span> value of 0.9229, ie 92.29% of the variance in SalePrice is explained by linear relationship with variables in the <code>BIC model</code>.</p></li>
@@ -1082,8 +1082,57 @@ qqline(resid(AIC_Log_cd), col = &quot;dodgerblue&quot;, lwd = 2)</code></pre>
 </div>
 <div id="results" class="section level2">
 <h2>Results</h2>
-<p>From the above table we could see that, comparitively the model built using the AIC search with log interaction model is the good model for predicting the house SalePrice as it has the best <span class="math inline">\(R^2\)</span> of the 6 models built above and it has comparitively good test RMSE.</p>
-<p>Usually if we are building</p>
+<p>Based on the discussion points about <span class="math inline">\(R^2\)</span>, RMSE and model assumption discussed in each model section and from the table below we could see that, the model built using the AIC search with log interaction model(AIC_Log_cd) is comparitively the good model for predicting the house SalePrice as it has the best <span class="math inline">\(R^2\)</span> of the 6 models built above and it has comparitively good test RMSE.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Models</th>
+<th align="right">R2 Values</th>
+<th align="right">Train RMSE</th>
+<th align="right">Test RMSE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">add_mod</td>
+<td align="right">0.8659282</td>
+<td align="right">0.0967815</td>
+<td align="right">0.4985559</td>
+</tr>
+<tr class="even">
+<td align="left">add_mod2</td>
+<td align="right">0.8560228</td>
+<td align="right">0.1519549</td>
+<td align="right">0.1739923</td>
+</tr>
+<tr class="odd">
+<td align="left">log_int_mod</td>
+<td align="right">0.9138646</td>
+<td align="right">0.1175327</td>
+<td align="right">0.3491662</td>
+</tr>
+<tr class="even">
+<td align="left">int_add_cd_mod</td>
+<td align="right">0.9294778</td>
+<td align="right">0.0925822</td>
+<td align="right">1.3360547</td>
+</tr>
+<tr class="odd">
+<td align="left">BIC_Log_cd</td>
+<td align="right">0.8883116</td>
+<td align="right">0.1165114</td>
+<td align="right">0.4877508</td>
+</tr>
+<tr class="even">
+<td align="left">AIC_Log_cd</td>
+<td align="right">0.9229351</td>
+<td align="right">0.0967815</td>
+<td align="right">0.4985559</td>
+</tr>
+</tbody>
+</table>
+<p>It may be hard to use the AIC_Log_cd model for interpretation, as it has large number of parameters.</p>
+<p>Usually if we are building a models for prediction purpose we can select the model based on the <span class="math inline">\(R^2\)</span> and RMSE values alone as the model will be good for prediction and we shouldn’t be concerned about the number of parameter.</p>
 </div>
 <div id="discussion" class="section level2">
 <h2>Discussion</h2>
