@@ -260,7 +260,11 @@ Missing_Summary[Missing_Summary$Missing_Values > 0,]
 Above are the list of variable having NA values, in the below section, we will fix those values with relavant values
 
 - Imputed missing values of `MasVnrArea` with its `mean`.
-- Imputed missing values of
+- Imputed missing values of `LotFrontage` with its `median`
+- Imputed the missing values of below with `0`.
+  
+  - `GarageYrBlt`, `BsmtFullBath`, `BsmtHalfBath`, `BsmtUnfSF`, `BsmtFinSF1`, `BsmtFinSF2`, `GarageArea`, `GarageCars`, `TotalBsmtSF`
+      
 
 ```{r}
 
