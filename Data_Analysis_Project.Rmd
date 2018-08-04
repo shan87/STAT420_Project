@@ -41,12 +41,12 @@ knitr::kable(members)
 ### About the Project
 This data analysis project is inspired from the House Prices: Advanced Regression Techniques competition held in Kaggle.
 
-In this project we will be try to predict the final price of each home, based on the 79 explanatory variables describing (almost) every aspect of residential homes in Ames, Iowa.
+In this project we will build a model to predict the SalePrice of each home, based on the 79 explanatory variables describing (almost) every aspect of residential homes in Ames, Iowa.
 
 ###Data Set
 
 #### Source
-Below are the details about our dataset. We are using house prie data available at  https://www.kaggle.com/c/house-prices-advanced-regression-techniques . We will use regression techniques to analyze the data. 
+Below are the details about our dataset. We are using house prie data available at  https://www.kaggle.com/c/house-prices-advanced-regression-techniques . We will use regression techniques to predict the SalePrice. 
 
 #### Background
 
@@ -203,8 +203,8 @@ From the above,`str` display of data we could see the below issues:
 
 We will do the following to rectify the above issues:
 
-- Removed `NA` and updated the values with `None` for character variables.
-- We have Imputed `NA` with either `0`, `Mean`, `Medain` or `Mode` for numeric variables appropriatley.
+- Remove NA and update the values with "None" for character variables.
+- Impute/replce NA with either `0`, `Mean`, `Medain` or `Mode` for numeric variables appropriatley.
 
 
 We made sure that, the train and test sets have the same factor levels by loading each data set again without converting strings to factors, combining them into one large data set, converting strings to factors for the combined data set and then separating them. 
@@ -493,8 +493,8 @@ boxplot(house_trn$SalePrice ~ house_trn[,char_var[i]], data = mpg,
      cex    = 2,
      las=1,
      outlier.size=10,
-     col    = "Orange",
-     border = "black")
+     col    = "blue",
+     border = "Black")
 
 ```
 
@@ -511,6 +511,8 @@ From the above plots we could see that the below variable have significance on S
 
 Based on the above data exploration, we will start building the model with the variables which has high significane on Saleprice.
 
+We will also put a log transformation for the SalePrice as it has right skewedness, which we infered from the histogram plot in the data exploration section.
+
 ### Additive Model
 
 ```{r}
@@ -523,20 +525,20 @@ add_mod = lm(log(SalePrice) ~  (MSSubClass +GrLivArea + TotalBsmtSF + OverallQua
 
 ```{r}
 
-summary(add_mod)$r.squared
+(r2_add=summary(add_mod)$r.squared)
 
 ```
 
 **Q-Q and Fitted vs Residual Plot**
 
-```{r}
+```{r fig.height=6, fig.width=13}
 
 par(mfrow = c(1, 2))
-plot(fitted(add_mod), resid(add_mod), col = "grey", pch = 20,
-    xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
-abline(h = 0, col = "darkorange", lwd = 2)
+plot(fitted(add_mod), resid(add_mod), col = "grey", pch = 20,ylim = c(-1, 1),
+    xlab = "Fitted", ylab = "Residuals", main = "Data from Additive Model-1")
+abline(h = 0, col = "dodgerblue", lwd = 2)
 
-qqnorm(resid(add_mod), main = "Normal Q-Q Plot", col = "darkgrey")
+qqnorm(resid(add_mod), main = "Normal Q-Q Plot", col = "darkgrey",ylim = c(-1, 1))
 qqline(resid(add_mod), col = "dodgerblue", lwd = 2)
 
 ```
@@ -560,7 +562,24 @@ shapiro.test(resid(add_mod))
 
 ```
 
+**Test results for Additive model**
+
+The above additive model have the following test results
+
+- $R^2$ value of `r round(summary(add_mod)$r.squared,4)`, ie `r percent(summary(add_mod)$r.squared)` of the variance in SalePrice is explained by linear relationship with variables in the `additive model`.
+
+- The model is `violating the constant variance and normality assumptions` which we could see from the QQ plot and fitted vs residual plot.The p values of `BP test` and `Shapiro-wilk test` also confirms the same.
+
+- Train RMSE of `r round((RMSE_Train_add = sqrt(mean(resid(add_mod) ^ 2))),4)`
+
+- Test RMSE of `r round((RMSE_test_add = sqrt(mean((log(house_tst$SalePrice) - predict(add_mod,house_tst)) ^ 2))),4)`
+
+This model is violating the model assumptions and have $R^2$ value of `r round(summary(add_mod)$r.squared,4)`, we will do further analysis to find a model which doesn't violate the model assumptions and have better $R^2$.
+
+
 ### Additive Model 2
+
+In the above additive model, few variables like MSSubclass which doesn't have significant p-value, so we will remove those non-significant variables and fit another additive model.
 
 ```{r}
 
@@ -572,20 +591,20 @@ add_mod2 = lm(log(SalePrice) ~  (GrLivArea + TotalBsmtSF + OverallQual+ YearBuil
 
 ```{r}
 
-summary(add_mod2)$r.squared
+(r2_add2=summary(add_mod2)$r.squared)
 
 ```
 
 **Q-Q and Fitted vs Residual Plot**
 
-```{r}
+```{r fig.height=6, fig.width=13}
 
 par(mfrow = c(1, 2))
-plot(fitted(add_mod2), resid(add_mod2), col = "grey", pch = 20,
-    xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
-abline(h = 0, col = "darkorange", lwd = 2)
+plot(fitted(add_mod2), resid(add_mod2), col = "grey", pch = 20,ylim = c(-1, 1),
+    xlab = "Fitted", ylab = "Residuals", main = "Data from Additive Model-2")
+abline(h = 0, col = "dodgerblue", lwd = 2)
 
-qqnorm(resid(add_mod2), main = "Normal Q-Q Plot", col = "darkgrey")
+qqnorm(resid(add_mod2), main = "Normal Q-Q Plot", col = "darkgrey",ylim = c(-1, 1))
 qqline(resid(add_mod2), col = "dodgerblue", lwd = 2)
 
 ```
@@ -603,11 +622,26 @@ shapiro.test(resid(add_mod2))
 
 ```{r,warning=FALSE}
 
- (RMSE_Train_add = sqrt(mean(resid(add_mod2) ^ 2)))
+ (RMSE_Train_add2 = sqrt(mean(resid(add_mod2) ^ 2)))
  
- (RMSE_test_add = sqrt(mean((log(house_tst$SalePrice) - predict(add_mod2,house_tst)) ^ 2)))
+ (RMSE_test_add2 = sqrt(mean((log(house_tst$SalePrice) - predict(add_mod2,house_tst)) ^ 2)))
 
 ```
+
+**Test results for Additive model-2**
+
+The above additive model have the following test results
+
+- $R^2$ value of `r round(summary(add_mod2)$r.squared,4)`, ie `r percent(summary(add_mod2)$r.squared)` of the variance in SalePrice is explained by linear relationship with variables in the `additive model`.
+
+- The model is `violating the constant variance and normality assumptions` which we could see from the QQ plot and fitted vs residual plot.The p values of `BP test` and `Shapiro-wilk test` also confirms the same.
+
+- Train RMSE of `r round((RMSE_Train_add = sqrt(mean(resid(add_mod2) ^ 2))),4)`
+
+- Test RMSE of `r round((RMSE_test_add = sqrt(mean((log(house_tst$SalePrice) - predict(add_mod2,house_tst)) ^ 2))),4)`
+
+This model is also violating the model assumptions and have $R^2$ value of `r round(summary(add_mod2)$r.squared,4)`, which is lower than the previous model.We will do further analysis to find a model which doesn't violate the model assumptions and have better $R^2$.
+
 
 #### Anova of Additive Model 1 and Model 2
 
@@ -617,8 +651,16 @@ anova(add_mod2,add_mod)
 
 ```
 
+The annova test has low p-vlaue of `r tidy(anova(add_mod2,add_mod))[2, "p.value"]`, which is confirming that the variable which we removed in additive model 2 is not significant so we can continue to find a better model with the variables in additive model-2.
 
 ### Log Interaction Model
+
+The constant variance and normality assumptions are violated in the above 2 additive models. The reason for this could be that the variables have righ-skewedness, as we commonly say in statistics that the **garbage in, garbage out**.
+
+So we will try to fix the right-skewedness by applying log transformation for the predictor variables.
+
+We will also try some interaction and see, if the $R^2$ is improving.
+
 
 ```{r,warning=FALSE}
 
@@ -631,7 +673,7 @@ log_int_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+ YearBuilt+ YearR
 
 ```{r}
 
-summary(log_int_mod)$r.squared
+(r2_int=summary(log_int_mod)$r.squared)
 
 ```
 
@@ -639,14 +681,14 @@ summary(log_int_mod)$r.squared
 
 **Q-Q and Fitted vs Residual Plot**
 
-```{r}
+```{r fig.height=6, fig.width=13}
 
 par(mfrow = c(1, 2))
-plot(fitted(log_int_mod), resid(log_int_mod), col = "grey", pch = 20,
-    xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
-abline(h = 0, col = "darkorange", lwd = 2)
+plot(fitted(log_int_mod), resid(log_int_mod), col = "grey", pch = 20,ylim = c(-1, 1),
+    xlab = "Fitted", ylab = "Residuals", main = "Data from Log interaction model")
+abline(h = 0, col = "dodgerblue", lwd = 2)
 
-qqnorm(resid(log_int_mod), main = "Normal Q-Q Plot", col = "darkgrey")
+qqnorm(resid(log_int_mod), main = "Normal Q-Q Plot", col = "darkgrey",ylim = c(-1, 1))
 qqline(resid(log_int_mod), col = "dodgerblue", lwd = 2)
 
 ```
@@ -670,15 +712,38 @@ shapiro.test(resid(log_int_mod))
 
 ```
 
+**Test results for Log interaction model**
+
+The above log interaction model have the following test results
+
+- $R^2$ value of `r round(summary(log_int_mod)$r.squared,4)`, ie `r percent(summary(log_int_mod)$r.squared)` of the variance in SalePrice is explained by linear relationship with variables in the `additive model`.
+
+- The model is `violating the normality assumptions` but the `constant variance assumption is valid` which we could see from the QQ plot and fitted vs residual plot.The high p-value of `BP test` confirms the constant variance and low p-value of `Shapiro-wilk test` shows that the normality assumption is invalid.
+
+- Train RMSE of `r round((RMSE_Train_add = sqrt(mean(resid(log_int_mod) ^ 2))),4)`
+
+- Test RMSE of `r round((RMSE_test_add = sqrt(mean((log(house_tst$SalePrice) - predict(log_int_mod,house_tst)) ^ 2))),4)`
+
+Even though the constant variance is valid for the log interaction model, its still violating the normality assumption and we see better $R^2$ value of `r round(summary(log_int_mod)$r.squared,4)` compared to the other 2 additive models.
+
+We will do further analysis and try to fit a model which doesn't violate the model assumptions and still have better $R^2$ as this model.
+
+
 ### Log Interation Model without Influential data
 
+To fix the normality assumption violation, we wil remove the influential observations and fit the above model.
 
 ```{r,warning=FALSE}
 
+#Log Intearction Model
+
 log_int_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+ YearBuilt+ YearRemodAdd + Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn)
 
+#Cooks distance for log interaction model
+
 log_int_mod_cd = cooks.distance(log_int_mod)
- 
+
+#Log interaction model after removing influential points
    
  int_add_cd_mod = lm(log(SalePrice) ~  (log(GrLivArea)+OverallQual+YearBuilt + YearRemodAdd + Neighborhood +log(TotRmsAbvGrd)+ExterQual)^2, data = house_trn  , subset = log_int_mod_cd < 4 / length(log_int_mod_cd))
  
@@ -688,7 +753,7 @@ log_int_mod_cd = cooks.distance(log_int_mod)
 
 ```{r}
 
-summary(int_add_cd_mod)$r.squared
+(r2_cd=summary(int_add_cd_mod)$r.squared)
 
 ```
 
@@ -696,14 +761,14 @@ summary(int_add_cd_mod)$r.squared
 **Q-Q and Fitted vs Residual Plot** 
  
  
-```{r}
+```{r fig.height=6, fig.width=13}
  
  par(mfrow = c(1, 2))
-plot(fitted(int_add_cd_mod), resid(int_add_cd_mod), col = "grey", pch = 20,
-    xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
-abline(h = 0, col = "darkorange", lwd = 2)
+plot(fitted(int_add_cd_mod), resid(int_add_cd_mod), col = "grey", pch = 20,ylim = c(-1, 1),
+    xlab = "Fitted", ylab = "Residuals", main = "Log interaction model - influential removed")
+abline(h = 0, col = "dodgerblue", lwd = 2)
 
-qqnorm(resid(int_add_cd_mod), main = "Normal Q-Q Plot", col = "darkgrey")
+qqnorm(resid(int_add_cd_mod), main = "Normal Q-Q Plot", col = "darkgrey",ylim = c(-1, 1))
 qqline(resid(int_add_cd_mod), col = "dodgerblue", lwd = 2)
 
 ```
@@ -731,9 +796,26 @@ shapiro.test(resid(int_add_cd_mod))
  
 ```
 
+**Test results for Log interaction model with influential points removed**
+
+The above log interaction model without influential points have the following test results
+
+- $R^2$ value of `r round(summary(int_add_cd_mod)$r.squared,4)`, ie `r percent(summary(int_add_cd_mod)$r.squared)` of the variance in SalePrice is explained by linear relationship with variables in the `additive model`.
+
+- Normality assumptions and the constant variance assumptions is **valid** for this model which we could see from the QQ plot and fitted vs residual plot.The high p-value of `BP test` and `Shapiro-wilk test` confirms the same.
+
+- Train RMSE of `r round((RMSE_Train_add = sqrt(mean(resid(int_add_cd_mod) ^ 2))),4)`
+
+- Test RMSE of `r round((RMSE_test_add = sqrt(mean((log(house_tst$SalePrice) - predict(int_add_cd_mod,house_mod)) ^ 2))),4)`
+
+This model has improved $R^2$ value and the model assumptions are also valid but there `r length(coef(int_add_cd_mod))` parameters, which will make the model interpretation difficult.
+
+Now, we will focus on **reducing the model parameters** by using the AIC/BIC search methods.
+
 
 ### BIC of Log Interation Model without Influential data
 
+In this section, we will do a BIC step search to reduce the number of parameters.
 
 ```{r,warning=FALSE}
 
@@ -747,7 +829,7 @@ BIC_Log_cd = step(int_add_cd_mod,k=log(n),trace=0)
 
 ```{r}
 
-summary(BIC_Log_cd)$r.squared
+(r2_bic=summary(BIC_Log_cd)$r.squared)
 
 ```
 
@@ -755,14 +837,14 @@ summary(BIC_Log_cd)$r.squared
 **Q-Q and Fitted vs Residual Plot** 
  
  
-```{r}
+```{r fig.height=6, fig.width=13}
  
  par(mfrow = c(1, 2))
-plot(fitted(BIC_Log_cd), resid(BIC_Log_cd), col = "grey", pch = 20,
+plot(fitted(BIC_Log_cd), resid(BIC_Log_cd), col = "grey", pch = 20,ylim = c(-1, 1),
     xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
-abline(h = 0, col = "darkorange", lwd = 2)
+abline(h = 0, col = "dodgerblue", lwd = 2)
 
-qqnorm(resid(BIC_Log_cd), main = "Normal Q-Q Plot", col = "darkgrey")
+qqnorm(resid(BIC_Log_cd), main = "Normal Q-Q Plot", col = "darkgrey",ylim = c(-1, 1))
 qqline(resid(BIC_Log_cd), col = "dodgerblue", lwd = 2)
 
 ```
@@ -790,7 +872,32 @@ shapiro.test(resid(BIC_Log_cd))
  
 ```
 
+
+**Test results for the models built using BIC search**
+
+The above model built using BIC have the following test results
+
+- $R^2$ value of `r round(summary(BIC_Log_cd)$r.squared,4)`, ie `r percent(summary(BIC_Log_cd)$r.squared)` of the variance in SalePrice is explained by linear relationship with variables in the `BIC model`.
+
+- Normality assumptions and the constant variance assumptions are **not valid** for this model which we could see from the QQ plot and fitted vs residual plot.The low p-value of `BP test` and `Shapiro-wilk test` confirms the same.
+
+- Train RMSE of `r round((RMSE_Train_add = sqrt(mean(resid(BIC_Log_cd) ^ 2))),4)`
+
+- Test RMSE of `r round((RMSE_test_add = sqrt(mean((log(house_tst$SalePrice) - predict(BIC_Log_cd,house_mod)) ^ 2))),4)`
+
+This model has reduced $R^2$ value compared to the log interaction model and log interaction without influential points.But this model has `r length(coef(BIC_Log_cd))`parameters which is very less parameters compared to the log interaction model, which make this model interpretable.
+
+Now, we will see if we can use AIC search method to acheive below:
+
+- Less parameters similar to BIC model 
+- Better $R^2$ 
+- Valid model assumptions and 
+- Low train and test RMSE
+
+
 ### AIC of Log Interation Model without Influential data
+
+In this section, we will do a AIC step search to reduce the number of parameters.
 
 ```{r,warning=FALSE}
 
@@ -804,7 +911,7 @@ AIC_Log_cd = step(int_add_cd_mod,trace=0)
 
 ```{r}
 
-summary(AIC_Log_cd)$r.squared
+(r2_aic=summary(AIC_Log_cd)$r.squared)
 
 ```
 
@@ -812,14 +919,14 @@ summary(AIC_Log_cd)$r.squared
 **Q-Q and Fitted vs Residual Plot** 
  
  
-```{r}
+```{r fig.height=6, fig.width=13}
  
  par(mfrow = c(1, 2))
-plot(fitted(AIC_Log_cd), resid(AIC_Log_cd), col = "grey", pch = 20,
+plot(fitted(AIC_Log_cd), resid(AIC_Log_cd), col = "grey", pch = 20,ylim = c(-1, 1),
     xlab = "Fitted", ylab = "Residuals", main = "Data from Model 2")
-abline(h = 0, col = "darkorange", lwd = 2)
+abline(h = 0, col = "dodgerblue", lwd = 2)
 
-qqnorm(resid(AIC_Log_cd), main = "Normal Q-Q Plot", col = "darkgrey")
+qqnorm(resid(AIC_Log_cd), main = "Normal Q-Q Plot", col = "darkgrey",ylim = c(-1, 1))
 qqline(resid(AIC_Log_cd), col = "dodgerblue", lwd = 2)
 
 ```
@@ -847,10 +954,31 @@ shapiro.test(resid(AIC_Log_cd))
  
 ```
 
+**Test results for the models built using AIC search**
+
+The above model built using AIC have the following test results
+
+- $R^2$ value of `r round(summary(AIC_Log_cd)$r.squared,4)`, ie `r percent(summary(AIC_Log_cd)$r.squared)` of the variance in SalePrice is explained by linear relationship with variables in the `BIC model`.
+
+- Normality assumptions and the constant variance assumptions are **valid** for this model which we could see from the QQ plot and fitted vs residual plot.
+The high p-value of `BP test` and `Shapiro-wilk test` confirms the same.
+
+- Train RMSE of `r round((RMSE_Train_add = sqrt(mean(resid(AIC_Log_cd) ^ 2))),4)`
+
+- Test RMSE of `r round((RMSE_test_add = sqrt(mean((log(house_tst$SalePrice) - predict(AIC_Log_cd,house_mod)) ^ 2))),4)`
+
+Also, this model has better $R^2$ value and this model has `r length(coef(AIC_Log_cd))`parameters which is very less parameters compared to the log interaction model, which make this model more interpretable than the log interaction model.
+
 
 ## Results
+
+
+From the above table we could see that, comparitively the model built using the AIC search with log interaction model is the good model for predicting the house SalePrice as it has the best $R^2$ of the 6 models built above and it has comparitively good test RMSE.
+
+Usually if we are building 
+
 ## Discussion
-## Appendix
+
 
 
 
