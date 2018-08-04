@@ -145,7 +145,7 @@ Here's a brief description of different fields of the house data set.
 - SaleType: Type of sale
 - SaleCondition: Condition of sale
 
-## Methods
+##Exploratory Data Analysis
 
 ###Data Import
 
@@ -173,7 +173,7 @@ dim(train)
 dim(test)
 ```
 
-From the dimension of test and train data, we could see that the test data has one less column than the train, as the sale price column would not be availble in test data and that's what we will be predicting as part of this project.
+From the dimension of test and train data, we could see that the test data has one less column than the train, as the **Sale Price** column would not be availble in test data and that's what we will be predicting as part of this project.
 
 ###Data Cleansing
 
@@ -181,19 +181,28 @@ From the dimension of test and train data, we could see that the test data has o
 str(train)
 ```
 
-From the above str display of data we could see that our data is not completely clean. First, certain variables contain NA values which could cause problems when we make predictive models later on. Second, the levels of some of the factor variables are not the same across the training set and test set.
+From the above,`str` display of data we could see the below issues:
 
-We also see that some of the factor variables have different levels in train and test data set, which might cause problem in predicting the model.We can make sure the train and test sets have the same factor levels by loading each data set again without converting strings to factors, combining them into one large data set, converting strings to factors for the combined data set and then separating them. 
+-  The data is not completely clean, certain variables contain `NA` values which could cause problems when we make predictive models later on. 
+- The levels of some of the factor variables are not the same across the training set and test set, which might cause some problems in predicting the model.
+- Some of the categoricals variables are listed as numeric this might have some impact on fitting the model.
 
-We also can change any NA in the dataset to None while changing the factor of character columns
+We will do the following to rectify the above issues:
+
+- Removed `NA` and updated the values with `None` for character variables.
+- We have Imputed `NA` with either `0`, `Mean`, `Medain` or `Mode` for numeric variables appropriatley.
+
+
+We made sure that, the train and test sets have the same factor levels by loading each data set again without converting strings to factors, combining them into one large data set, converting strings to factors for the combined data set and then separating them. 
+
 
 We also can change the data types of the below features from numeric to string.
 
-###Features	
-
-MSSubClass, OverallCond, OverallQual, GarageCars, YrSold, MoSold
+`MSSubClass`, `OverallCond`, `OverallQual`, `GarageCars`, `YrSold`, `MoSold`
 
 The values for each feature above represent different categories and not different amounts of something. This is easiest to see in the case of MSSubClass, where the numbers encode different categories of houses, such as 2-Story 1946 and Newer (60) and 2-Story 1945 and Older (70).  It is harder to discern in a feature like GarageCars, where each value seems to count something (cars) but in actuality represents the garage capacity, and therefore represents a category.
+
+####Step 1
 
 Removing the target variable SalePrice, which is not found in test data set.
 
@@ -202,6 +211,8 @@ SalePrice = train$SalePrice
 train$SalePrice = NULL
 
 ```
+
+####Step 2
 
 Combining test and training data set and changing numeric to factor variable.
 
@@ -219,7 +230,9 @@ house_data$MoSold = as.character(house_data$MoSold)
 
 ```
 
-We will now convert character columns to factor and will replace NA values with "None".
+####Step 3
+
+We will now convert `character` columns to factor and will replace NA values with "None".
 
 ```{r}
 for (col in colnames(house_data)){
@@ -231,7 +244,11 @@ for (col in colnames(house_data)){
 }
 ```
 
-Now the factor variable should be common across test and train dataset ,lets try to find the missing values in integer variable and fix it.
+Now the `factor variable` should be common across test and train dataset.
+
+####Step 4
+
+Lets try to find the missing values in `integer variable` and fix it.
 
 ```{r}
 ## Checking for missing data values in all integer variables
@@ -241,6 +258,9 @@ Missing_Summary[Missing_Summary$Missing_Values > 0,]
 ```
 
 Above are the list of variable having NA values, in the below section, we will fix those values with relavant values
+
+- Imputed missing values of `MasVnrArea` with its `mean`.
+- Imputed missing values of
 
 ```{r}
 

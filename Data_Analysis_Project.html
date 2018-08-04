@@ -130,10 +130,9 @@ $(document).ready(function () {
 <li><a href="#about-the-project">About the Project</a></li>
 <li><a href="#data-set">Data Set</a></li>
 </ul></li>
-<li><a href="#methods">Methods</a><ul>
+<li><a href="#exploratory-data-analysis">Exploratory Data Analysis</a><ul>
 <li><a href="#data-import">Data Import</a></li>
 <li><a href="#data-cleansing">Data Cleansing</a></li>
-<li><a href="#features">Features</a></li>
 <li><a href="#train-and-test-data-split">Train and Test data Split</a></li>
 <li><a href="#data-exploration">Data Exploration</a></li>
 <li><a href="#corelation-matrix">Corelation Matrix</a></li>
@@ -305,8 +304,8 @@ $(document).ready(function () {
 </div>
 </div>
 </div>
-<div id="methods" class="section level2">
-<h2>Methods</h2>
+<div id="exploratory-data-analysis" class="section level2">
+<h2>Exploratory Data Analysis</h2>
 <div id="data-import" class="section level3">
 <h3>Data Import</h3>
 <pre class="r"><code>library(lmtest)
@@ -324,7 +323,7 @@ test = read.csv(&quot;test.csv&quot;, stringsAsFactors = FALSE) </code></pre>
 <pre><code>## [1] 1460   81</code></pre>
 <pre class="r"><code>dim(test)</code></pre>
 <pre><code>## [1] 1459   80</code></pre>
-<p>From the dimension of test and train data, we could see that the test data has one less column than the train, as the sale price column would not be availble in test data and that’s what we will be predicting as part of this project.</p>
+<p>From the dimension of test and train data, we could see that the test data has one less column than the train, as the <strong>Sale Price</strong> column would not be availble in test data and that’s what we will be predicting as part of this project.</p>
 </div>
 <div id="data-cleansing" class="section level3">
 <h3>Data Cleansing</h3>
@@ -411,15 +410,23 @@ test = read.csv(&quot;test.csv&quot;, stringsAsFactors = FALSE) </code></pre>
 ##  $ SaleType     : chr  &quot;WD&quot; &quot;WD&quot; &quot;WD&quot; &quot;WD&quot; ...
 ##  $ SaleCondition: chr  &quot;Normal&quot; &quot;Normal&quot; &quot;Normal&quot; &quot;Abnorml&quot; ...
 ##  $ SalePrice    : int  208500 181500 223500 140000 250000 143000 307000 200000 129900 118000 ...</code></pre>
-<p>From the above str display of data we could see that our data is not completely clean. First, certain variables contain NA values which could cause problems when we make predictive models later on. Second, the levels of some of the factor variables are not the same across the training set and test set.</p>
-<p>We also see that some of the factor variables have different levels in train and test data set, which might cause problem in predicting the model.We can make sure the train and test sets have the same factor levels by loading each data set again without converting strings to factors, combining them into one large data set, converting strings to factors for the combined data set and then separating them.</p>
-<p>We also can change any NA in the dataset to None while changing the factor of character columns</p>
+<p>From the above,<code>str</code> display of data we could see the below issues:</p>
+<ul>
+<li>The data is not completely clean, certain variables contain <code>NA</code> values which could cause problems when we make predictive models later on.</li>
+<li>The levels of some of the factor variables are not the same across the training set and test set, which might cause some problems in predicting the model.</li>
+<li>Some of the categoricals variables are listed as numeric this might have some impact on fitting the model.</li>
+</ul>
+<p>We will do the following to rectify the above issues:</p>
+<ul>
+<li>Removed <code>NA</code> and updated the values with <code>None</code> for character variables.</li>
+<li>We have Imputed <code>NA</code> with either <code>0</code>, <code>Mean</code>, <code>Medain</code> or <code>Mode</code> for numeric variables appropriatley.</li>
+</ul>
+<p>We made sure that, the train and test sets have the same factor levels by loading each data set again without converting strings to factors, combining them into one large data set, converting strings to factors for the combined data set and then separating them.</p>
 <p>We also can change the data types of the below features from numeric to string.</p>
-</div>
-<div id="features" class="section level3">
-<h3>Features</h3>
-<p>MSSubClass, OverallCond, OverallQual, GarageCars, YrSold, MoSold</p>
+<p><code>MSSubClass</code>, <code>OverallCond</code>, <code>OverallQual</code>, <code>GarageCars</code>, <code>YrSold</code>, <code>MoSold</code></p>
 <p>The values for each feature above represent different categories and not different amounts of something. This is easiest to see in the case of MSSubClass, where the numbers encode different categories of houses, such as 2-Story 1946 and Newer (60) and 2-Story 1945 and Older (70). It is harder to discern in a feature like GarageCars, where each value seems to count something (cars) but in actuality represents the garage capacity, and therefore represents a category.</p>
+<div id="step-1" class="section level4">
+<h4>Step 1</h4>
 <p>Removing the target variable SalePrice, which is not found in test data set.</p>
 <pre class="r"><code>SalePrice = train$SalePrice 
 train$SalePrice = NULL</code></pre>
@@ -574,6 +581,7 @@ test = house_data[(nrow(train)+1):nrow(house_data),]</code></pre>
 ##  $ SaleType     : Factor w/ 10 levels &quot;COD&quot;,&quot;Con&quot;,&quot;ConLD&quot;,..: 10 10 10 10 10 10 10 10 10 10 ...
 ##  $ SaleCondition: Factor w/ 6 levels &quot;Abnorml&quot;,&quot;AdjLand&quot;,..: 5 5 5 1 5 5 5 5 1 5 ...
 ##  $ SalePrice    : int  208500 181500 223500 140000 250000 143000 307000 200000 129900 118000 ...</code></pre>
+</div>
 </div>
 <div id="train-and-test-data-split" class="section level3">
 <h3>Train and Test data Split</h3>
