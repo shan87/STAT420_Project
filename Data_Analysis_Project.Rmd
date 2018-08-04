@@ -45,8 +45,6 @@ In this project we will be try to predict the final price of each home, based on
 
 ###Data Set
 
-????????
-
 #### Source
 Below are the details about our dataset. We are using house prie data available at  https://www.kaggle.com/c/house-prices-advanced-regression-techniques . We will use regression techniques to analyze the data. 
 
@@ -419,8 +417,6 @@ Based on the
 
 add_mod = lm(log(SalePrice) ~  (MSSubClass +GrLivArea + TotalBsmtSF + OverallQual+ YearBuilt+ FullBath + YearRemodAdd + Neighborhood +TotRmsAbvGrd+ExterQual), data = house_trn)
 
-summary(add_mod)
-
 ```
 
 **R-Squared**
@@ -469,8 +465,6 @@ shapiro.test(resid(add_mod))
 ```{r}
 
 add_mod2 = lm(log(SalePrice) ~  (GrLivArea + TotalBsmtSF + OverallQual+ YearBuilt+ YearRemodAdd + Neighborhood +TotRmsAbvGrd+ExterQual), data = house_trn)
-
-summary(add_mod2)
 
 ```
 
@@ -645,10 +639,7 @@ shapiro.test(resid(int_add_cd_mod))
 
 n = length(resid(int_add_cd_mod))
 
-
- BIC_Log_cd = step(int_add_cd_mod,k=log(n),trace=0)
- 
- summary(BIC_Log_cd)
+BIC_Log_cd = step(int_add_cd_mod,k=log(n),trace=0)
  
 ```
 
@@ -705,11 +696,8 @@ shapiro.test(resid(BIC_Log_cd))
 
 n = length(resid(int_add_cd_mod))
 
+AIC_Log_cd = step(int_add_cd_mod,trace=0)
 
- AIC_Log_cd = step(int_add_cd_mod,trace=0)
- 
- summary(AIC_Log_cd)
- 
 ```
 
 **R-Squared**
