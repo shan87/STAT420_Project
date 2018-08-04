@@ -107,8 +107,8 @@ Here's a brief description of different fields of the house data set.
 - HeatingQC: Heating quality and condition
 - CentralAir: Central air conditioning
 - Electrical: Electrical system
-- 1stFlrSF: First Floor square feet
-- 2ndFlrSF: Second floor square feet
+- X1stFlrSF: First Floor square feet
+- X2ndFlrSF: Second floor square feet
 - LowQualFinSF: Low quality finished square feet (all floors)
 - GrLivArea: Above grade (ground) living area square feet
 - BsmtFullBath: Basement full bathrooms
@@ -145,11 +145,14 @@ Here's a brief description of different fields of the house data set.
 - SaleType: Type of sale
 - SaleCondition: Condition of sale
 
-##Exploratory Data Analysis
+## Data Preparation
 
-###Data Import
+### Data Import
 
 ```{r,message=FALSE,error=FALSE, warning=FALSE}
+
+#Libraries used
+
 library(lmtest)
 library(broom)
 library(formattable)
@@ -157,20 +160,27 @@ library(faraway)
 library(ggplot2)
 library(leaps)
 library(caret)
+
 ```
 
 **Importing test and train data from the files**
 
 ```{r}
+
+#Import train and test dataset from the source files.
+
 train = read.csv("train.csv", stringsAsFactors = FALSE) 
-test = read.csv("test.csv", stringsAsFactors = FALSE) 
+test = read.csv("test.csv", stringsAsFactors = FALSE)
+
 ```
 
 **Checking the number of columns and observation in test and train data**
 
 ```{r}
+
 dim(train)
 dim(test)
+
 ```
 
 From the dimension of test and train data, we could see that the test data has one less column than the train, as the **Sale Price** column would not be availble in test data and that's what we will be predicting as part of this project.
@@ -178,7 +188,11 @@ From the dimension of test and train data, we could see that the test data has o
 ###Data Cleansing
 
 ```{r}
+
+#Displaying the structure of train dataset
+
 str(train)
+
 ```
 
 From the above,`str` display of data we could see the below issues:
@@ -207,6 +221,9 @@ The values for each feature above represent different categories and not differe
 Removing the target variable SalePrice, which is not found in test data set.
 
 ```{r}
+
+## Removing the target variable saleprice
+
 SalePrice = train$SalePrice 
 train$SalePrice = NULL
 
@@ -218,9 +235,11 @@ Combining test and training data set and changing numeric to factor variable.
 
 ```{r}
 # Combine data sets
+
 house_data = rbind(train,test)
 
 ##Change Numeric to factor
+
 house_data$MSSubClass = as.character(house_data$MSSubClass)
 house_data$OverallCond = as.character(house_data$OverallCond)
 house_data$OverallQual = as.character(house_data$OverallQual)
@@ -235,6 +254,9 @@ house_data$MoSold = as.character(house_data$MoSold)
 We will now convert `character` columns to factor and will replace NA values with "None".
 
 ```{r}
+
+## Replacing the NA in character variable with None.
+
 for (col in colnames(house_data)){
   if (typeof(house_data[,col]) == "character"){
     new_col = house_data[,col]
@@ -251,7 +273,9 @@ Now the `factor variable` should be common across test and train dataset.
 Lets try to find the missing values in `integer variable` and fix it.
 
 ```{r}
+
 ## Checking for missing data values in all integer variables
+
 Missing_indices = sapply(house_data,function(x) sum(is.na(x)))
 Missing_Summary = data.frame(index = names(house_data),Missing_Values=Missing_indices)
 Missing_Summary[Missing_Summary$Missing_Values > 0,]
@@ -297,10 +321,13 @@ house_data$TotalBsmtSF[which(is.na(house_data$TotalBsmtSF))] = 0
 
 ```
 
-Below, we will separate the train and test data after fixing the NA values.
+####Step 5
+
+We will split the train and test data after fixing data.
 
 ```{r}
 # Separate out our train and test sets
+
 train = house_data[1:nrow(train),]
 train$SalePrice = SalePrice  
 test = house_data[(nrow(train)+1):nrow(house_data),]
@@ -309,14 +336,22 @@ test = house_data[(nrow(train)+1):nrow(house_data),]
 Let's now have a look at the train data set
 
 ```{r}
+
+#Displaying the train dataset structure after data cleansing.
+
 str(train)
+
 ```
+
+From the above `str` of train dataset, we could see that the `NA` in the dataset is completely removed now.
 
 ###Train and Test data Split
 
-We will split the data from the train file in 80 - 20 ration, we can use 20% of the data to test our fitted model.
+We split the data from the train dataset in 80 - 20 ratio, we can use this 20% data of train dataset to test our fitted model.
 
 ```{r}
+
+#Splitting the train dataset into train and test
 
 set.seed(1)
 house_trn_idx = sample(1:nrow(train), 1168)
@@ -325,25 +360,36 @@ house_tst = train[-house_trn_idx,]
 
 ```
 
-### Data Exploration
+## Exploratory Data Analysis
 
-### Corelation Matrix
+### Correlation Matrix
 
-Lets plot the correlation matrix to see which variable have multicollinearity.
+Lets plot the correlation matrix to see which variables have multicollinearity.
 
 ```{r fig.height=8, fig.width=13, warning=FALSE}
+
+# Correlation Plot
+
 house_train_num<-house_trn[, sapply(house_trn, is.numeric)]
 Correlation<-cor(na.omit(house_train_num))
 library(corrplot)
 corrplot(Correlation, method = "square")
-#(col_round = round(cor(Correlation), 2))col=colorRampPalette(c("blue","white","red"))
 
 ```
 
-### Corelation with sales price
+From the above plot, we could see that some varaiables have high correlation between each other, below are the few examples:
 
-Variable which has high corelation with sales price
+- TotalBsmtSF and X1stFlrSF
+- BsmtFinSF1 and BsmtFullBath
+- X2ndFlrSF and GrLivArea
+
+### Correlation with SalePrice
+
+We will explore the Variable which has correlation of more than `0.5` with SalePrice.
+
 ```{r}
+
+#variables having Correlation > 0.5 with SalePrice  
 
 for (col in colnames(house_trn)){
    if(is.numeric(house_trn[,col])){
@@ -360,41 +406,51 @@ for (col in colnames(house_trn)){
 We can use the variable listed above to fit our model as it has high corelation with sales price.
 
 
-###Distribtion of Sales Price
+###Distribtion of SalePrice
 
 ```{r fig.width=10}
+
+#Distribution of SalePrice
 
 par(mfrow = c(1,2))
 
 hist(house_trn$SalePrice,
     xlab   = "Sale Price without log(SalePrice)",
     main   = "Histogram of sales price",
-    border = "orange",
-
+    border = "blue",
     breaks = 20)
+
+#Distribution of log(SalePrice)
 
 hist(log(house_trn$SalePrice),
     xlab   = "Sale Price with log(SalePrice)",
     main   = "Histogram of sales price",
-    border = "orange",
-  
+    border = "blue",
     breaks = 20)
 
+#Q-Q Plot for SalePrice
+
 qqnorm(house_trn$SalePrice, main = "Normal Q-Q Plot, without log(SalePrice)", col = "darkgrey")
-qqline(house_trn$SalePrice, col = "dodgerblue", lwd = 2)
+qqline(house_trn$SalePrice, col = "blue", lwd = 2)
+
+#Q-Q Plot for log(SalePrice)
 
 qqnorm(log(house_trn$SalePrice), main = "Normal Q-Q Plot, with log(SalePrice) ", col = "darkgrey")
-qqline(log(house_trn$SalePrice), col = "dodgerblue", lwd = 2)
+qqline(log(house_trn$SalePrice), col = "blue", lwd = 2)
 
 ```
 
-From the above plot we could see that the sales price data is  right skewed so we can apply log transformation for sales price.
+From the above plot, we could see that the SalePrice data is `right-skewed` so we can apply log transformation for SalePrice.
 
-After applying log transformation, we could see that the sales price is normally distributed.
+After applying `log transformation`, we could see that the SalePrice is `normally distributed`.
 
 ### Distribution of numeric varibles
 
+In this section, we will explore the distribution of numeric variables which have high correlation with SalePrice.
+
 ```{r fig.height=3, fig.width=10}
+
+#Histogram for checking the distribution of numeric variables
 
 var_sel = c("YearBuilt", "YearRemodAdd","TotalBsmtSF", "X1stFlrSF","GrLivArea", "FullBath", "TotRmsAbvGrd", "GarageArea")
 
@@ -403,16 +459,27 @@ for(i in 1:length(var_sel))
 hist(house_trn[,var_sel[i]],
     xlab   = paste(toString(var_sel[i])),
     main   = paste("Histogram of ",toString(var_sel[i])),
-    border = "Orange",
+    border = "blue",
     breaks = 20)
-
-
 
 ```
 
+From the above plots, we can infer the following
+- TotalBsmtSF is `right-skewed`
+- GrLivArea is `right-skewed`
+- X1stFlrSF is `right-skewed`
+- GarageArea is `right-skewed`
+- YearBuilt is `left-skewed`
+
+When we use the these variables which has right-skewedness, we can apply log transformation for these variables.
+
 ### Sales Price Vs Factor Variable
 
+In this section, we can explore the effect of each factor variable on SalePrice.
+
 ```{r fig.height=5, fig.width=15}
+
+#Box plot for factor variables against SalePrice 
 
 char_var = as.array(names(house_trn[, sapply(house_trn, class) == 'factor']))
 
@@ -426,14 +493,23 @@ boxplot(house_trn$SalePrice ~ house_trn[,char_var[i]], data = mpg,
      cex    = 2,
      las=1,
      outlier.size=10,
-     col    = "blue",
+     col    = "Orange",
      border = "black")
 
 ```
 
+From the above plots we could see that the below variable have significance on SalePrice.
+
+- MSSubClass
+- MSZoning
+- Neighborhood
+- OverallQual
+- KitchenQual
+
+
 ## Model Building
 
-Based on the
+Based on the above data exploration, we will start building the model with the variables which has high significane on Saleprice.
 
 ### Additive Model
 
