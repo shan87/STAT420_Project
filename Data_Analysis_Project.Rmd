@@ -3,9 +3,9 @@ title: "STAT 420: Data Analysis Project - Predict the price of your dream home"
 author: "Anupama Agrahari, Dhanendra Singh, Naveen Kumar Palani, Shanthakumar Subramanian"
 date: ''
 output:
+  pdf_document: default
   html_document: 
     toc: yes
-  pdf_document: default
 urlcolor: cyan
 ---
 
@@ -158,6 +158,7 @@ library(faraway)
 library(ggplot2)
 library(leaps)
 library(caret)
+library(tinytex)
 
 ```
 
@@ -972,7 +973,7 @@ Also, this model has better $R^2$ value and this model has `r length(coef(AIC_Lo
 
 **Preferred model for predicting SalePrice**
 
-Based on the discussion points about $R^2$, RMSE and model assumption discussed in each model section and from the table below we could see that, the model built using the AIC search with log interaction model(AIC_Log_cd) is comparitively the good model for predicting the house SalePrice as it has the best $R^2$ of the 6 models built above and it has comparitively good test RMSE.
+Based on the discussion points about $R^2$, RMSE and model assumption discussed in each model section and from the table below we could see that, the model built using the AIC search with log interaction model(**AIC_Log_cd**) is comparitively the good model for predicting the house SalePrice as it has the best $R^2$ of the 6 models built above and it has comparitively good test RMSE.
 
 ```{r,echo=FALSE}
 
@@ -1027,6 +1028,10 @@ train_mod = subset(train, train$Neighborhood =="Gilbert" )
 knitr::kable(head(train_mod[,c(47,63,18,20,21,13,55,28,81)],10))
 
 ```
+
+**Conclusion**
+
+From the above tables, we could see that the Saleprice predicted from the test data set for the houses in Gilbert neighborhood are having values close to that of the saleprice of houses in Gilbert neighborhood in the train dataset. So our model is doing a pretty job in predicting the SalePrice.
 
 
 
