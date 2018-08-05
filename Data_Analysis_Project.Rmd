@@ -195,11 +195,11 @@ str(train)
 
 ```
 
-From the above,`str` display of data we could see the below issues:
+From the above,`str` display of data, we could see the below issues:
 
--  The data is not completely clean, certain variables contain `NA` values which could cause problems when we make predictive models later on. 
-- The levels of some of the factor variables are not the same across the training set and test set, which might cause some problems in predicting the model.
-- Some of the categoricals variables are listed as numeric this might have some impact on fitting the model.
+-  The data is not completely clean, certain variables contain `NA` values which could cause problems when we do any mathematical operation and while fitting the model. 
+- The levels of some of the factor variables are not the same across the training set and test set, which might also cause some problems while fitting the model.
+- Some of the categoricals variables are listed as numeric, this might have some impact on fitting the model.
 
 We will do the following to rectify the above issues:
 
@@ -207,7 +207,7 @@ We will do the following to rectify the above issues:
 - Impute/replce NA with either `0`, `Mean`, `Medain` or `Mode` for numeric variables appropriatley.
 
 
-We made sure that, the train and test sets have the same factor levels by loading each data set again without converting strings to factors, combining them into one large data set, converting strings to factors for the combined data set and then separating them. 
+We should make sure that, the train and test sets have the same factor levels by loading each data set again without converting strings to factors, combining them into one large data set, converting strings to factors for the combined data set and then separating them. 
 
 
 We also can change the data types of the below features from numeric to string.
@@ -323,7 +323,7 @@ house_data$TotalBsmtSF[which(is.na(house_data$TotalBsmtSF))] = 0
 
 ####Step 5
 
-We will split the train and test data after fixing data.
+We will split the train and test data now as the data issues are fixed.
 
 ```{r}
 # Separate out our train and test sets
@@ -347,7 +347,7 @@ From the above `str` of train dataset, we could see that the `NA` in the dataset
 
 ###Train and Test data Split
 
-We split the data from the train dataset in 80 - 20 ratio, we can use this 20% data of train dataset to test our fitted model.
+We can split the data from the train dataset in 80 - 20 ratio, we can use this 20% data of train dataset to test our fitted model.
 
 ```{r}
 
@@ -473,7 +473,7 @@ From the above plots, we can infer the following
 
 When we use the these variables which has right-skewedness, we can apply log transformation for these variables.
 
-### Sales Price Vs Factor Variable
+### SalePrice Vs Factor Variables
 
 In this section, we can explore the effect of each factor variable on SalePrice.
 
@@ -813,7 +813,7 @@ This model has improved $R^2$ value and the model assumptions are also valid but
 Now, we will focus on **reducing the model parameters** by using the AIC/BIC search methods.
 
 
-### BIC of Log Interation Model without Influential data
+### BIC of Log Interation Model
 
 In this section, we will do a BIC step search to reduce the number of parameters.
 
@@ -895,7 +895,7 @@ Now, we will see if we can use AIC search method to acheive below:
 - Low train and test RMSE
 
 
-### AIC of Log Interation Model without Influential data
+### AIC of Log Interation Model
 
 In this section, we will do a AIC step search to reduce the number of parameters.
 
@@ -967,7 +967,7 @@ The high p-value of `BP test` and `Shapiro-wilk test` confirms the same.
 
 - Test RMSE of `r round((RMSE_test_add = sqrt(mean((log(house_tst$SalePrice) - predict(AIC_Log_cd,house_mod)) ^ 2))),4)`
 
-Also, this model has better $R^2$ value and this model has `r length(coef(AIC_Log_cd))`parameters which is very less parameters compared to the log interaction model, which make this model more interpretable than the log interaction model.
+Also, this model has better $R^2$ value and this model has `r length(coef(AIC_Log_cd))`parameters which is less parameters compared to the log interaction model, which make this model more interpretable than the log interaction model.
 
 
 ## Results
@@ -987,9 +987,9 @@ knitr::kable(results)
 
 ```
 
-It may be hard to use the AIC_Log_cd model for interpretation, as it has large number of parameters.
+The AIC log interaction model also has valid constant variance and normality assumption, which makes the model good for interpretation purpose but it may be  little difficuly to use the AIC_Log_cd model for interpretation, as it has large number of parameters.
 
-Usually if we are building a models for prediction purpose we can select the model based on the $R^2$ and RMSE values alone as the model will be good for prediction and we shouldn't be concerned about the number of parameter.
+The aim of this project is to build a priction model,usually if we are building a models for prediction purpose we can select the model based on the $R^2$ and RMSE values alone as the model will be good for prediction and we shouldn't be concerned about the number of parameter.
 
 ## Discussion
 

@@ -140,15 +140,15 @@ $(document).ready(function () {
 <li><a href="#correlation-with-saleprice">Correlation with SalePrice</a></li>
 <li><a href="#distribtion-of-saleprice">Distribtion of SalePrice</a></li>
 <li><a href="#distribution-of-numeric-varibles">Distribution of numeric varibles</a></li>
-<li><a href="#sales-price-vs-factor-variable">Sales Price Vs Factor Variable</a></li>
+<li><a href="#saleprice-vs-factor-variables">SalePrice Vs Factor Variables</a></li>
 </ul></li>
 <li><a href="#model-building">Model Building</a><ul>
 <li><a href="#additive-model">Additive Model</a></li>
 <li><a href="#additive-model-2">Additive Model 2</a></li>
 <li><a href="#log-interaction-model">Log Interaction Model</a></li>
 <li><a href="#log-interation-model-without-influential-data">Log Interation Model without Influential data</a></li>
-<li><a href="#bic-of-log-interation-model-without-influential-data">BIC of Log Interation Model without Influential data</a></li>
-<li><a href="#aic-of-log-interation-model-without-influential-data">AIC of Log Interation Model without Influential data</a></li>
+<li><a href="#bic-of-log-interation-model">BIC of Log Interation Model</a></li>
+<li><a href="#aic-of-log-interation-model">AIC of Log Interation Model</a></li>
 </ul></li>
 <li><a href="#results">Results</a></li>
 <li><a href="#discussion">Discussion</a></li>
@@ -416,18 +416,18 @@ str(train)</code></pre>
 ##  $ SaleType     : chr  &quot;WD&quot; &quot;WD&quot; &quot;WD&quot; &quot;WD&quot; ...
 ##  $ SaleCondition: chr  &quot;Normal&quot; &quot;Normal&quot; &quot;Normal&quot; &quot;Abnorml&quot; ...
 ##  $ SalePrice    : int  208500 181500 223500 140000 250000 143000 307000 200000 129900 118000 ...</code></pre>
-<p>From the above,<code>str</code> display of data we could see the below issues:</p>
+<p>From the above,<code>str</code> display of data, we could see the below issues:</p>
 <ul>
-<li>The data is not completely clean, certain variables contain <code>NA</code> values which could cause problems when we make predictive models later on.</li>
-<li>The levels of some of the factor variables are not the same across the training set and test set, which might cause some problems in predicting the model.</li>
-<li>Some of the categoricals variables are listed as numeric this might have some impact on fitting the model.</li>
+<li>The data is not completely clean, certain variables contain <code>NA</code> values which could cause problems when we do any mathematical operation and while fitting the model.</li>
+<li>The levels of some of the factor variables are not the same across the training set and test set, which might also cause some problems while fitting the model.</li>
+<li>Some of the categoricals variables are listed as numeric, this might have some impact on fitting the model.</li>
 </ul>
 <p>We will do the following to rectify the above issues:</p>
 <ul>
 <li>Remove NA and update the values with “None” for character variables.</li>
 <li>Impute/replce NA with either <code>0</code>, <code>Mean</code>, <code>Medain</code> or <code>Mode</code> for numeric variables appropriatley.</li>
 </ul>
-<p>We made sure that, the train and test sets have the same factor levels by loading each data set again without converting strings to factors, combining them into one large data set, converting strings to factors for the combined data set and then separating them.</p>
+<p>We should make sure that, the train and test sets have the same factor levels by loading each data set again without converting strings to factors, combining them into one large data set, converting strings to factors for the combined data set and then separating them.</p>
 <p>We also can change the data types of the below features from numeric to string.</p>
 <p><code>MSSubClass</code>, <code>OverallCond</code>, <code>OverallQual</code>, <code>GarageCars</code>, <code>YrSold</code>, <code>MoSold</code></p>
 <p>The values for each feature above represent different categories and not different amounts of something. This is easiest to see in the case of MSSubClass, where the numbers encode different categories of houses, such as 2-Story 1946 and Newer (60) and 2-Story 1945 and Older (70). It is harder to discern in a feature like GarageCars, where each value seems to count something (cars) but in actuality represents the garage capacity, and therefore represents a category.</p>
@@ -524,7 +524,7 @@ house_data$TotalBsmtSF[which(is.na(house_data$TotalBsmtSF))] = 0</code></pre>
 </div>
 <div id="step-5" class="section level4">
 <h4>Step 5</h4>
-<p>We will split the train and test data after fixing data.</p>
+<p>We will split the train and test data now as the data issues are fixed.</p>
 <pre class="r"><code># Separate out our train and test sets
 
 train = house_data[1:nrow(train),]
@@ -621,7 +621,7 @@ str(train)</code></pre>
 </div>
 <div id="train-and-test-data-split" class="section level3">
 <h3>Train and Test data Split</h3>
-<p>We split the data from the train dataset in 80 - 20 ratio, we can use this 20% data of train dataset to test our fitted model.</p>
+<p>We can split the data from the train dataset in 80 - 20 ratio, we can use this 20% data of train dataset to test our fitted model.</p>
 <pre class="r"><code>#Splitting the train dataset into train and test
 
 set.seed(1)
@@ -734,8 +734,8 @@ hist(house_trn[,var_sel[i]],
 <p>From the above plots, we can infer the following - TotalBsmtSF is <code>right-skewed</code> - GrLivArea is <code>right-skewed</code> - X1stFlrSF is <code>right-skewed</code> - GarageArea is <code>right-skewed</code> - YearBuilt is <code>left-skewed</code></p>
 <p>When we use the these variables which has right-skewedness, we can apply log transformation for these variables.</p>
 </div>
-<div id="sales-price-vs-factor-variable" class="section level3">
-<h3>Sales Price Vs Factor Variable</h3>
+<div id="saleprice-vs-factor-variables" class="section level3">
+<h3>SalePrice Vs Factor Variables</h3>
 <p>In this section, we can explore the effect of each factor variable on SalePrice.</p>
 <pre class="r"><code>#Box plot for factor variables against SalePrice 
 
@@ -976,8 +976,8 @@ qqline(resid(int_add_cd_mod), col = &quot;dodgerblue&quot;, lwd = 2)</code></pre
 <p>This model has improved <span class="math inline">\(R^2\)</span> value and the model assumptions are also valid but there 378 parameters, which will make the model interpretation difficult.</p>
 <p>Now, we will focus on <strong>reducing the model parameters</strong> by using the AIC/BIC search methods.</p>
 </div>
-<div id="bic-of-log-interation-model-without-influential-data" class="section level3">
-<h3>BIC of Log Interation Model without Influential data</h3>
+<div id="bic-of-log-interation-model" class="section level3">
+<h3>BIC of Log Interation Model</h3>
 <p>In this section, we will do a BIC step search to reduce the number of parameters.</p>
 <pre class="r"><code>n = length(resid(int_add_cd_mod))
 
@@ -1031,8 +1031,8 @@ qqline(resid(BIC_Log_cd), col = &quot;dodgerblue&quot;, lwd = 2)</code></pre>
 <li>Low train and test RMSE</li>
 </ul>
 </div>
-<div id="aic-of-log-interation-model-without-influential-data" class="section level3">
-<h3>AIC of Log Interation Model without Influential data</h3>
+<div id="aic-of-log-interation-model" class="section level3">
+<h3>AIC of Log Interation Model</h3>
 <p>In this section, we will do a AIC step search to reduce the number of parameters.</p>
 <pre class="r"><code>n = length(resid(int_add_cd_mod))
 
@@ -1077,7 +1077,7 @@ qqline(resid(AIC_Log_cd), col = &quot;dodgerblue&quot;, lwd = 2)</code></pre>
 <li><p>Train RMSE of 0.0968</p></li>
 <li><p>Test RMSE of 0.4986</p></li>
 </ul>
-<p>Also, this model has better <span class="math inline">\(R^2\)</span> value and this model has 274parameters which is very less parameters compared to the log interaction model, which make this model more interpretable than the log interaction model.</p>
+<p>Also, this model has better <span class="math inline">\(R^2\)</span> value and this model has 274parameters which is less parameters compared to the log interaction model, which make this model more interpretable than the log interaction model.</p>
 </div>
 </div>
 <div id="results" class="section level2">
@@ -1131,8 +1131,8 @@ qqline(resid(AIC_Log_cd), col = &quot;dodgerblue&quot;, lwd = 2)</code></pre>
 </tr>
 </tbody>
 </table>
-<p>It may be hard to use the AIC_Log_cd model for interpretation, as it has large number of parameters.</p>
-<p>Usually if we are building a models for prediction purpose we can select the model based on the <span class="math inline">\(R^2\)</span> and RMSE values alone as the model will be good for prediction and we shouldn’t be concerned about the number of parameter.</p>
+<p>The AIC log interaction model also has valid constant variance and normality assumption, which makes the model good for interpretation purpose but it may be little difficuly to use the AIC_Log_cd model for interpretation, as it has large number of parameters.</p>
+<p>The aim of this project is to build a priction model,usually if we are building a models for prediction purpose we can select the model based on the <span class="math inline">\(R^2\)</span> and RMSE values alone as the model will be good for prediction and we shouldn’t be concerned about the number of parameter.</p>
 </div>
 <div id="discussion" class="section level2">
 <h2>Discussion</h2>
