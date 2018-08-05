@@ -150,8 +150,7 @@ $(document).ready(function () {
 <li><a href="#bic-of-log-interation-model">BIC of Log Interation Model</a></li>
 <li><a href="#aic-of-log-interation-model">AIC of Log Interation Model</a></li>
 </ul></li>
-<li><a href="#results">Results</a></li>
-<li><a href="#discussion">Discussion</a></li>
+<li><a href="#results-and-prediction">Results and Prediction</a></li>
 </ul>
 </div>
 
@@ -195,7 +194,7 @@ $(document).ready(function () {
 <div id="about-the-project" class="section level3">
 <h3>About the Project</h3>
 <p>This data analysis project is inspired from the House Prices: Advanced Regression Techniques competition held in Kaggle.</p>
-<p>In this project we will build a model to predict the SalePrice of each home, based on the 79 explanatory variables describing (almost) every aspect of residential homes in Ames, Iowa.</p>
+<p>In this project we are building a model to predict the SalePrice of each home, based on the 80 explanatory variables describing (almost) every aspect of residential homes in Ames, Iowa.</p>
 </div>
 <div id="data-set" class="section level3">
 <h3>Data Set</h3>
@@ -1080,8 +1079,9 @@ qqline(resid(AIC_Log_cd), col = &quot;dodgerblue&quot;, lwd = 2)</code></pre>
 <p>Also, this model has better <span class="math inline">\(R^2\)</span> value and this model has 274parameters which is less parameters compared to the log interaction model, which make this model more interpretable than the log interaction model.</p>
 </div>
 </div>
-<div id="results" class="section level2">
-<h2>Results</h2>
+<div id="results-and-prediction" class="section level2">
+<h2>Results and Prediction</h2>
+<p><strong>Preferred model for predicting SalePrice</strong></p>
 <p>Based on the discussion points about <span class="math inline">\(R^2\)</span>, RMSE and model assumption discussed in each model section and from the table below we could see that, the model built using the AIC search with log interaction model(AIC_Log_cd) is comparitively the good model for predicting the house SalePrice as it has the best <span class="math inline">\(R^2\)</span> of the 6 models built above and it has comparitively good test RMSE.</p>
 <table>
 <thead>
@@ -1096,8 +1096,8 @@ qqline(resid(AIC_Log_cd), col = &quot;dodgerblue&quot;, lwd = 2)</code></pre>
 <tr class="odd">
 <td align="left">add_mod</td>
 <td align="right">0.8659282</td>
-<td align="right">0.0967815</td>
-<td align="right">0.4985559</td>
+<td align="right">0.1466346</td>
+<td align="right">0.1674523</td>
 </tr>
 <tr class="even">
 <td align="left">add_mod2</td>
@@ -1133,9 +1133,286 @@ qqline(resid(AIC_Log_cd), col = &quot;dodgerblue&quot;, lwd = 2)</code></pre>
 </table>
 <p>The AIC log interaction model also has valid constant variance and normality assumption, which makes the model good for interpretation purpose but it may be little difficuly to use the AIC_Log_cd model for interpretation, as it has large number of parameters.</p>
 <p>The aim of this project is to build a priction model,usually if we are building a models for prediction purpose we can select the model based on the <span class="math inline">\(R^2\)</span> and RMSE values alone as the model will be good for prediction and we shouldn’t be concerned about the number of parameter.</p>
-</div>
-<div id="discussion" class="section level2">
-<h2>Discussion</h2>
+<p><strong>Prediction on test data</strong></p>
+<p>Using our preferred model, lets predict the SalesPrice for the houses in ’Gilbert` neigborhood in test data set and see if the predicted price is matching with the similar kind of house in training data set.</p>
+<p><strong>Predicted SalePrice for houses in Gilbert Neighborhood</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">GrLivArea</th>
+<th align="right">GarageArea</th>
+<th align="left">OverallQual</th>
+<th align="right">YearBuilt</th>
+<th align="right">YearRemodAdd</th>
+<th align="left">Neighborhood</th>
+<th align="right">TotRmsAbvGrd</th>
+<th align="left">ExterQual</th>
+<th align="right">SalePrice</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1463</td>
+<td align="right">1629</td>
+<td align="right">482</td>
+<td align="left">5</td>
+<td align="right">1997</td>
+<td align="right">1998</td>
+<td align="left">Gilbert</td>
+<td align="right">6</td>
+<td align="left">TA</td>
+<td align="right">144977.4</td>
+</tr>
+<tr class="even">
+<td>1464</td>
+<td align="right">1604</td>
+<td align="right">470</td>
+<td align="left">6</td>
+<td align="right">1998</td>
+<td align="right">1998</td>
+<td align="left">Gilbert</td>
+<td align="right">7</td>
+<td align="left">TA</td>
+<td align="right">180924.6</td>
+</tr>
+<tr class="odd">
+<td>1466</td>
+<td align="right">1655</td>
+<td align="right">440</td>
+<td align="left">6</td>
+<td align="right">1993</td>
+<td align="right">1994</td>
+<td align="left">Gilbert</td>
+<td align="right">7</td>
+<td align="left">TA</td>
+<td align="right">176284.2</td>
+</tr>
+<tr class="even">
+<td>1467</td>
+<td align="right">1187</td>
+<td align="right">420</td>
+<td align="left">6</td>
+<td align="right">1992</td>
+<td align="right">2007</td>
+<td align="left">Gilbert</td>
+<td align="right">6</td>
+<td align="left">TA</td>
+<td align="right">160625.6</td>
+</tr>
+<tr class="odd">
+<td>1468</td>
+<td align="right">1465</td>
+<td align="right">393</td>
+<td align="left">6</td>
+<td align="right">1998</td>
+<td align="right">1998</td>
+<td align="left">Gilbert</td>
+<td align="right">7</td>
+<td align="left">TA</td>
+<td align="right">175115.1</td>
+</tr>
+<tr class="even">
+<td>1469</td>
+<td align="right">1341</td>
+<td align="right">506</td>
+<td align="left">7</td>
+<td align="right">1990</td>
+<td align="right">1990</td>
+<td align="left">Gilbert</td>
+<td align="right">5</td>
+<td align="left">TA</td>
+<td align="right">162938.6</td>
+</tr>
+<tr class="odd">
+<td>1483</td>
+<td align="right">1324</td>
+<td align="right">430</td>
+<td align="left">6</td>
+<td align="right">2005</td>
+<td align="right">2005</td>
+<td align="left">Gilbert</td>
+<td align="right">6</td>
+<td align="left">Gd</td>
+<td align="right">169230.6</td>
+</tr>
+<tr class="even">
+<td>1485</td>
+<td align="right">1374</td>
+<td align="right">400</td>
+<td align="left">7</td>
+<td align="right">2004</td>
+<td align="right">2004</td>
+<td align="left">Gilbert</td>
+<td align="right">7</td>
+<td align="left">Gd</td>
+<td align="right">181816.4</td>
+</tr>
+<tr class="odd">
+<td>1486</td>
+<td align="right">1733</td>
+<td align="right">433</td>
+<td align="left">7</td>
+<td align="right">2004</td>
+<td align="right">2004</td>
+<td align="left">Gilbert</td>
+<td align="right">7</td>
+<td align="left">Gd</td>
+<td align="right">207771.2</td>
+</tr>
+<tr class="even">
+<td>1627</td>
+<td align="right">1608</td>
+<td align="right">470</td>
+<td align="left">6</td>
+<td align="right">1997</td>
+<td align="right">1997</td>
+<td align="left">Gilbert</td>
+<td align="right">7</td>
+<td align="left">TA</td>
+<td align="right">179627.4</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Real SalePrice for houses in Gilbert Neighborhood from train data</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">GrLivArea</th>
+<th align="right">GarageArea</th>
+<th align="left">OverallQual</th>
+<th align="right">YearBuilt</th>
+<th align="right">YearRemodAdd</th>
+<th align="left">Neighborhood</th>
+<th align="right">TotRmsAbvGrd</th>
+<th align="left">ExterQual</th>
+<th align="right">SalePrice</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>51</td>
+<td align="right">1470</td>
+<td align="right">388</td>
+<td align="left">6</td>
+<td align="right">1997</td>
+<td align="right">1997</td>
+<td align="left">Gilbert</td>
+<td align="right">6</td>
+<td align="left">TA</td>
+<td align="right">177000</td>
+</tr>
+<tr class="even">
+<td>73</td>
+<td align="right">1718</td>
+<td align="right">427</td>
+<td align="left">7</td>
+<td align="right">1998</td>
+<td align="right">1998</td>
+<td align="left">Gilbert</td>
+<td align="right">7</td>
+<td align="left">TA</td>
+<td align="right">185000</td>
+</tr>
+<tr class="odd">
+<td>85</td>
+<td align="right">1474</td>
+<td align="right">400</td>
+<td align="left">7</td>
+<td align="right">1995</td>
+<td align="right">1996</td>
+<td align="left">Gilbert</td>
+<td align="right">7</td>
+<td align="left">TA</td>
+<td align="right">168500</td>
+</tr>
+<tr class="even">
+<td>87</td>
+<td align="right">1560</td>
+<td align="right">400</td>
+<td align="left">6</td>
+<td align="right">2005</td>
+<td align="right">2005</td>
+<td align="left">Gilbert</td>
+<td align="right">6</td>
+<td align="left">Gd</td>
+<td align="right">174000</td>
+</tr>
+<tr class="odd">
+<td>96</td>
+<td align="right">1470</td>
+<td align="right">420</td>
+<td align="left">6</td>
+<td align="right">1993</td>
+<td align="right">1993</td>
+<td align="left">Gilbert</td>
+<td align="right">6</td>
+<td align="left">Ex</td>
+<td align="right">185000</td>
+</tr>
+<tr class="even">
+<td>112</td>
+<td align="right">1430</td>
+<td align="right">400</td>
+<td align="left">7</td>
+<td align="right">2000</td>
+<td align="right">2000</td>
+<td align="left">Gilbert</td>
+<td align="right">7</td>
+<td align="left">TA</td>
+<td align="right">180000</td>
+</tr>
+<tr class="odd">
+<td>132</td>
+<td align="right">2054</td>
+<td align="right">390</td>
+<td align="left">6</td>
+<td align="right">2000</td>
+<td align="right">2000</td>
+<td align="left">Gilbert</td>
+<td align="right">7</td>
+<td align="left">Gd</td>
+<td align="right">244000</td>
+</tr>
+<tr class="even">
+<td>148</td>
+<td align="right">2035</td>
+<td align="right">434</td>
+<td align="left">7</td>
+<td align="right">2001</td>
+<td align="right">2001</td>
+<td align="left">Gilbert</td>
+<td align="right">8</td>
+<td align="left">Gd</td>
+<td align="right">222500</td>
+</tr>
+<tr class="odd">
+<td>160</td>
+<td align="right">2462</td>
+<td align="right">576</td>
+<td align="left">7</td>
+<td align="right">2005</td>
+<td align="right">2006</td>
+<td align="left">Gilbert</td>
+<td align="right">9</td>
+<td align="left">Gd</td>
+<td align="right">320000</td>
+</tr>
+<tr class="even">
+<td>169</td>
+<td align="right">1720</td>
+<td align="right">440</td>
+<td align="left">7</td>
+<td align="right">2004</td>
+<td align="right">2004</td>
+<td align="left">Gilbert</td>
+<td align="right">7</td>
+<td align="left">Gd</td>
+<td align="right">183500</td>
+</tr>
+</tbody>
+</table>
 </div>
 
 
