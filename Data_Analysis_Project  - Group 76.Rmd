@@ -2,10 +2,10 @@
 title: "STAT 420: Data Analysis Project - Predict the price of your dream home" 
 author: "Anupama Agrahari, Dhanendra Singh, Naveen Kumar Palani, Shanthakumar Subramanian"
 date: ''
-output:
-  pdf_document: default
+output: 
   html_document: 
     toc: yes
+  pdf_document: default
 urlcolor: cyan
 ---
 
